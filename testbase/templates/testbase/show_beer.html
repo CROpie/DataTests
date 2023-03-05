@@ -1,0 +1,11 @@
+{% extends "testbase/layout.html" %}
+
+{% block body %}
+    <h1>Full database of beers logged</h1>
+    {% for beer in beerslist%}
+    <ul>
+        <li>Name: {{ beer.name }}</li>
+        <li>Style: {{ beer.style }}</li>
+    </ul>
+        {% endfor %}
+{% endblock %}

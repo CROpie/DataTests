@@ -1,0 +1,7 @@
+{% extends "testbase/layout.html" %}
+
+{% block body %}
+    <h1>Welcome to tapped</h1>
+    <button><a href="{% url 'new' %}">Add a new beer</a></button>
+    <button><a href="{% url 'showbeer' %}">Print the database</a></button>
+{% endblock %}
