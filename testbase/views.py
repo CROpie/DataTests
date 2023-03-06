@@ -1,15 +1,8 @@
 from django.shortcuts import render
-from django.http import HttpResponse, HttpResponseRedirect
-from django import forms
-from django.urls import reverse
+from django.http import HttpResponseRedirect
 
 from .models import Beer
-
-beers = []
-
-class NewBeerForm(forms.Form):
-     beername = forms.CharField(max_length=64)
-     beerstyle = forms.CharField(max_length=64)
+from .forms import NewBeerForm
 
 # Create your views here.
 
@@ -17,10 +10,21 @@ def index(request):
     return render(request, "testbase/index.html")
 
 def addbeer(request):
-    return render(request, "testbase/new_beer.html", {
-                  "form": NewBeerForm()
-    })
-                
+    if request.method == 'GET':
+        return render(request, "testbase/new_beer.html", {
+                    "form": NewBeerForm()
+        })
+    elif request.method == 'POST':
+        form = NewBeerForm(request.POST)
+        if form.is_valid():
+            form = form.cleaned_data
+            beer = Beer (
+                name=form["beername"],
+                style=form["beerstyle"],
+            )
+            beer.save()
+            return HttpResponseRedirect("new_beer")
+
 
 """
 the beers variable stores the entire database
@@ -54,18 +58,30 @@ HttpResponseRedirect sends the user to a page after running to script. Good prac
 """
 
 def submitbeer(request):
+    if request.method == 'POST':
+
+        
+
+        """
+        merging addbeer and submitbeer
+        def addbeer(request):
+    if request.method == 'GET':
+        print("yep its a get")
+    return render(request, "testbase/new_beer.html", {
+                  "form": NewBeerForm()
+    })
+
+def submitbeer(request):
     form = NewBeerForm(request.POST)
     if request.method == 'POST':
         form = NewBeerForm(request.POST)
         if form.is_valid():
             form = form.cleaned_data
-            print(form)
-            beername = form["beername"]
-            beerstyle = form["beerstyle"]
             beer = Beer (
-                name=beername,
-                style=beerstyle,
+                name=form["beername"],
+                style=form["beerstyle"],
             )
             beer.save()
             return HttpResponseRedirect("new_beer")
-        
+
+            """

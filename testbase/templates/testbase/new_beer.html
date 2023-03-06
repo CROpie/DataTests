@@ -2,7 +2,7 @@
 
 {% block body %}
     <h1>Fill out the form to add a new beer to the database</h1>
-    <form action="{% url 'submitbeer'%}" method="post">
+    <form action="{% url 'new'%}" method="post">
         {% csrf_token %}
         {{ form.as_p }}
         <input type="submit">

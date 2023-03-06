@@ -1,11 +1,22 @@
 {% extends "testbase/layout.html" %}
+{% load static %}
+
+{% block head %}
+<link rel="stylesheet" href="{% static 'testbase/styles.css' %}">
+{% endblock %}
 
 {% block body %}
     <h1>Full database of beers logged</h1>
-    {% for beer in beerslist%}
-    <ul>
-        <li>Name: {{ beer.name }}</li>
-        <li>Style: {{ beer.style }}</li>
-    </ul>
-        {% endfor %}
+    <div class="container">
+        <div class="leftdiv">
+            {% for beer in beerslist%}
+            <div class="beername">Name: {{ beer.name }}</div>
+            {% endfor %}
+        </div>
+        <div class="rightdiv">
+            {% for beer in beerslist%}
+            <div class="beerstyle">Style: {{ beer.style }}</div>
+            {% endfor %}
+        </div>
+    </div>
 {% endblock %}

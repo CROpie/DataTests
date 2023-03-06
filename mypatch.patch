@@ -1,0 +1,6 @@
+diff --git a/testbase/__pycache__/urls.cpython-310.pyc b/testbase/__pycache__/urls.cpython-310.pyc
+index 847c135..8e5b314 100644
+Binary files a/testbase/__pycache__/urls.cpython-310.pyc and b/testbase/__pycache__/urls.cpython-310.pyc differ
+diff --git a/testbase/__pycache__/views.cpython-310.pyc b/testbase/__pycache__/views.cpython-310.pyc
+index 0646458..b13eb63 100644
+Binary files a/testbase/__pycache__/views.cpython-310.pyc and b/testbase/__pycache__/views.cpython-310.pyc differ
