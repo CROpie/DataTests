@@ -1,0 +1,17 @@
+* {
+    margin: 0px;
+    padding: 0px;
+}
+
+.container {
+    display: flex;
+}
+
+.leftdiv {
+    margin-right: 30px;
+}
+
+.leftdiv,
+.rightdiv {
+    padding: 10px;
+}
