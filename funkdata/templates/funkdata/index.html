@@ -9,12 +9,12 @@
 <body>
 <h1>Choose programming language</h1>
 <div id="lang-menu-container">
-    <div id="lang-menu">
-            <div value="lang-default">Choose Language</div>
+    <select name="type" id="lang-menu" onchange=testFunction(this.value)>
+            <option class="language" value="lang-default">Choose Language</option>
 {% for language in LFTDjango.keys %}
-            <button class="language" id="language-{{ language }}" value="{{ language }}" onclick=testTheFunk(value)>{{ language }}</button> 
+            <option class="language" id="language-{{ language }}" value="{{ language }}">{{ language }}</option> 
 {% endfor %}
-    </div>
+    </select>
 </div>
 <div>
     <h4 id="neatdata"></h4>
@@ -29,12 +29,14 @@
         printData.innerHTML += `${x} : ${data[x]}` + "<br><br>";
     }
 
-    function testTheFunk(langlang) {
-    alert(langlang);
-}
-
+    function testFunction(functionlanguage) {
+        if (functionlanguage === "lang-default") {
+            return;
+        } else {
+            console.log(functionlanguage)
+        }
+    }
 
 </script>
 </body>
 </html>
-

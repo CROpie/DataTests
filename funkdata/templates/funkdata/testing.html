@@ -9,16 +9,25 @@
 <body>
 <h1>Choose programming language</h1>
 <div id="lang-menu-container">
-    <div id="lang-menu">
-            <div value="lang-default">Choose Language</div>
-            <button class="language" id="language-python" >python</button> 
-    </div>
+    <select name="type" id="lang-menu" onchange=testFunction(this.value)>
+            <option value="lang-default">Choose Language</option>
+            <option value="python" id="language-python">python</option>
+            <option value="javascript" id="language-javascript">javascript</option> 
+    </select>
 </div>
 
 <script>
-    document.querySelector('#language-python').onclick = testFunction;
 
-    function testFunction() {
-        alert("huh")
+    //document.querySelector('#language-python').onchange = testFunction;
+    //document.querySelector('#language-javascript').onclick = testFunction;
+
+    function testFunction(functionlanguage) {
+        if (functionlanguage === "lang-default") {
+            return;
+        } else {
+            console.log(functionlanguage)
+        }
     }
+
 </script>
+
