@@ -1,0 +1,32 @@
+{% extends "testbase/layout.html" %}
+
+{% block head %}
+<link rel="stylesheet" href="../../static/funkdata/styles.css">
+ 
+{% endblock %}
+
+{% block body %}
+    <h1>Choose programming language</h1>
+    <div id="lang-menu-container">
+        <select id="lang-menu">
+                <option value="lang-default">Choose Language</option>
+    {% for language in language_function_types.keys %}
+                <option class="language" value="language-{{ language }}">{{ language }}</option> 
+    {% endfor %}
+        </select>
+    </div>
+
+    <script>
+        function testFunction() {
+            langMenu = document.querySelector('#lang-menu');
+            console.log(langMenu)
+            console.log("language-{{ language }}")
+                if (langMenu.value === "language-{{ language }}") {
+                    console.log("{{ language }} success!");
+                }
+        }
+        document.querySelector('#lang-menu').onchange = testFunction;
+    </script>
+
+    {% endblock %}
+

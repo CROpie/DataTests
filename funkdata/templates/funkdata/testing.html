@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset='utf-8'>
+        <title>Function Database</title>
+        <script src="../../static/funkdata/script3.js" defer></script>
+    </head>
+
+<body>
+<h1>Choose programming language</h1>
+<div id="lang-menu-container">
+    <div id="lang-menu">
+            <div value="lang-default">Choose Language</div>
+            <button class="language" id="language-python" >python</button> 
+    </div>
+</div>
+
+<script>
+    document.querySelector('#language-python').onclick = testFunction;
+
+    function testFunction() {
+        alert("huh")
+    }
+</script>

@@ -1,0 +1,31 @@
+* {
+    margin: 0px;
+    padding: 0px;
+    border: 1px solid black;
+}
+
+#lang-menu {
+    font-size: 30px;
+}
+
+.function-menu-container {
+    display: none;
+}
+
+.function-menu {
+    font-size: 20px;
+}
+
+#content-container {
+    margin-top: 30px;
+    border: 1px solid black;
+}
+
+.content-title {
+    font-size: 30px;
+}
+
+.JSFM,
+.PyFM {
+    display: none;
+}

@@ -1,0 +1,67 @@
+{% extends "testbase/layout.html" %}
+
+{% block head %}
+<link rel="stylesheet" href="../../static/funkdata/styles.css">
+<script src="../../static/funkdata/script.js" defer></script>   
+{% endblock %}
+
+{% block body %}
+    <h1>Choose programming language</h1>
+    <div id="lang-menu-container">
+        <select id="lang-menu">
+                <option value="lang-default">Choose Language</option>
+                <option value="JavaScript">JavaScript</option>
+                <option value="Python">Python</option>
+                <option value="html">html</option>
+                <option value="css">css</option>
+        </select>
+    </div>
+
+    <div id="JS-function-menu-container" class="function-menu-container">
+        <select id="JS-number-menu" class="function-menu" class="JSFM">
+            <option value="JS-num-default">Number Functions</option>
+            <option value="numbersomething">numbersomething</option>
+            <option value="numbersomething2">numbersomething2</option>
+        </select>
+
+        <select id="JS-string-menu" class="function-menu" class="JSFM">
+            <option value="JS-string-default">String Functions</option>
+            <option value="length">length</option>
+            <option value="slice">slice</option>
+        </select>
+    </div>
+
+    <div id="Py-function-menu-container" class="function-menu-container">
+        <select id="Py-number-menu" class="function-menu" class="PyFM">
+            <option value="Py-num-default">Number Functions</option>
+            <option value="numbersomething">number</option>
+            <option value="numbersomething2">numbe</option>
+        </select>
+
+        <select id="Py-string-menu" class="function-menu" class="PyFM">
+            <option value="Py-string-default">String Functions</option>
+            <option value="lengther">lengther</option>
+            <option value="sliceer">sliceer</option>
+        </select>
+    </div>
+    <div id="content-container">
+        <div class=content-title>Method:</div>
+            <div id="method-content" class="content"></div>
+        <div class=content-title>Arguments:</div>
+            <div id="argument-content" class="content"></div>
+        <div class=content-title>Return:</div>
+            <div id="return-content" class="content"></div>
+        <div class=content-title>Example:</div>
+            <div id="example-content" class="content"></div>
+        <div class=content-title>Link to working example:</div>
+            <div id="link-content" class="content"></div>
+        <div id="misc-content" class=content-title>Misc Info:</div>
+            <div id="misc-content" class="content"></div>
+    </div>
+    <div class="testdataget">
+        {% for data in function_database %}
+            <div class="functionfield">Name: {{ data.method_name }}</div>
+            <div class="argumentsfield">Arguments used: {{ data.arguments }}</div>
+        {% endfor %}
+    </div>
+{% endblock %}
