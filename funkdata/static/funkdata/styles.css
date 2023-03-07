@@ -12,6 +12,10 @@
     display: none;
 }
 
+.language-type-container {
+    display: none;
+}
+
 .function-menu {
     font-size: 20px;
 }

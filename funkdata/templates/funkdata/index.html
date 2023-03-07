@@ -4,6 +4,7 @@
         <meta charset='utf-8'>
         <title>Function Database</title>
         <script src="../../static/funkdata/script2.js" defer></script>
+        <link rel="stylesheet" href="../../static/funkdata/styles.css">
     </head>
 
 <body>
@@ -16,6 +17,20 @@
 {% endfor %}
     </select>
 </div>
+
+
+
+{% for language, function_types in LFTDjango.items %}
+<div id="{{language}}-type-container" class="language-type-container">
+
+{% for function_type in function_types %}
+    <select class="function-menu" >
+    <option value="{{ function_type }}" >{{ function_type }}</option>
+    </select>
+    {% endfor %}
+</div>
+{% endfor %}
+
 <div>
     <h4 id="neatdata"></h4>
 </div>
@@ -33,7 +48,12 @@
         if (functionlanguage === "lang-default") {
             return;
         } else {
-            console.log(functionlanguage)
+            document.querySelectorAll('.language-type-container').forEach(container => {
+                container.style.display = 'none';
+            })
+
+            showdropdowns = document.getElementById(`${functionlanguage}-type-container`);
+            showdropdowns.style.display = "flex";
         }
     }
 
