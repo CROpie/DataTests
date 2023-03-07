@@ -23,12 +23,9 @@
 {% for language, function_types in LFTDjango.items %}
 <div id="{{language}}-type-container" class="language-type-container">
 
-{% for function_type, names in function_types.items %}
+{% for function_type in function_types %}
     <select class="function-menu" >
     <option value="{{ function_type }}" >{{ function_type }}</option>
-    {% for name in names %}
-    <option value="{{ name }}" >{{ name }}</option>
-    {% endfor %}
     </select>
     {% endfor %}
 </div>
@@ -36,7 +33,13 @@
 
 
 
-
+{% for language, function_types in LFTDjango.items %}
+{% for function_type, names in function_types.items %}
+{% for name in names %}
+<div class="name"> {{ name }}</div>
+{% endfor %}
+{% endfor %}
+{% endfor %}
 
 <div>
     <h4 id="neatdata"></h4>

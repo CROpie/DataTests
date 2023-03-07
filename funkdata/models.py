@@ -22,4 +22,5 @@ class FunctionInfo(models.Model):
     method_name = models.CharField(max_length=64)
 
     def __str__(self):
+        #return f"{self.language} {self.function_type} {self.method_name}"
         return f"{self.method_name}"
