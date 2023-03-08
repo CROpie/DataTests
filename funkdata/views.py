@@ -75,49 +75,50 @@ def import_csv(request):
     return render(request, "funkdata/import.html")
 
 
-# Makes a dictionary consisting of {language: [function_type-0, ... function_type-n], }, which can be utilized in django loops
+# Makes a dictionary consisting of {language: {function_type: {function_name: { function_data[] }}}}, which can be utilized in django loops
 # Also sends a JSON dump of the same dictionary, which is used by javascript
 
 def index(request):
-    language_function_types = {}
+    language_dict = {}
     languages = Language.objects.all()
     
     for language in languages:
-        print(language)
-        print("------------------")
-        function_type_names = {}
+        function_type_dict= {}
 
         # For a given language, retrieve all the FunctionType objects as a queryset
         # Since foreign keys are being used, need to use a contains command to trace back the string.
         function_types = FunctionType.objects.filter(language__unique_language__contains=language.unique_language)
-        print(function_types)
-        # Iterate over the queryset then add each into a list called function_types
-        # Without str(), the function gets added as a Queryset, which causes issues down the line
-        #for function_type in language_functions:
-        #    function_types.append(str(function_type))
-        
+
         for function_type in function_types:
-            print("------------------")
-            function_names = FunctionName.objects.filter(language__unique_language__contains=language.unique_language, function_type__unique_function_type__contains=function_type.unique_function_type)
-            print(function_names)
-            function_name_list = []
+            function_names = FunctionName.objects.filter(language__unique_language__contains=language.unique_language, 
+                                                         function_type__unique_function_type__contains=function_type.unique_function_type)
+            function_name_dict = {}
 
             for function_name in function_names:
-                print("------------------")
-                function_name_list.append(str(function_name))
-        
-            function_type_names[function_type.unique_function_type] = function_name_list
+                function_data = FunctionAll.objects.filter(language__unique_language__contains=language.unique_language,
+                                                           function_type__unique_function_type__contains=function_type.unique_function_type,
+                                                           function_name__unique_function_name__contains=function_name.unique_function_name)
+                function_data_list = []
+
+                # Iterate over the queryset then add each into a list
+                # Without str(), the data gets added as a Queryset, which causes issues down the line
+                for function_datum in function_data:
+                    function_data_list.append(str(function_datum))
+
+                function_name_dict[function_name.unique_function_name] = function_data_list
+
+            function_type_dict[function_type.unique_function_type] = function_name_dict
             #print(function_type_names)
 
-        language_function_types[language.unique_language] = function_type_names
+        language_dict[language.unique_language] = function_type_dict
         #print(language_function_types)
             
-    print(language_function_types)
+    print(language_dict)
     
-    LFTJSON = dumps(language_function_types)
+    LFTJSON = dumps(language_dict)
     return render(request, "funkdata/index.html", {
         "LFTJson": LFTJSON,
-        "LFTDjango": language_function_types,
+        "LFTDjango": language_dict,
 
     })
 

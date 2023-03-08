@@ -9,49 +9,41 @@
 
 <body>
 <h1>Choose programming language</h1>
+
+<!-- Initialize the language choice drop-down menu-->
 <div id="lang-menu-container">
-    <select name="type" id="lang-menu" onchange=testFunction(this.value)>
+    <select name="type" id="lang-menu" onchange=showFunctionTypes(this.value)>
             <option class="language" value="lang-default">Choose Language</option>
-{% for language in LFTDjango.keys %}
-            <option class="language" id="language-{{ language }}" value="{{ language }}">{{ language }}</option> 
-{% endfor %}
+            {% for language in LFTDjango.keys %}
+                <option class="language" id="language-{{ language }}" value="{{ language }}">{{ language }}</option> 
+            {% endfor %}
     </select>
 </div>
 
-
-
+<!-- Initialize the function_type choice drop-down menus for each language-->
 {% for language, function_types in LFTDjango.items %}
-<div id="{{language}}-type-container" class="language-type-container">
+    <div id="{{language}}-type-container" class="language-type-container">
 
-{% for function_type, names in function_types.items %}
-    <select class="function-menu" >
-    <option value="{{ function_type }}" >{{ function_type }}</option>
-    {% for name in names %}
-    <option value="{{ name }}" >{{ name }}</option>
+    {% for function_type, function_names in function_types.items %}
+        <select class="function-menu" onchange=showFunctionData(this.value)>
+            <option value="func-default" >{{ function_type }}</option>
+            {% for function_name in function_names %}
+                <option value="{{ language }},{{ function_type }},{{ function_name }}" >{{ function_name }}</option>
+            {% endfor %}
+        </select>
     {% endfor %}
-    </select>
-    {% endfor %}
-</div>
+    </div>
 {% endfor %}
 
 
 
 
-
-<div>
-    <h4 id="neatdata"></h4>
-</div>
 
 <script>
 
-    let data = JSON.parse("{{LFTJson|escapejs}}");
+    let data = JSON.parse("{{LFTJson|escapejs}}");    
 
-    printData = document.getElementById('neatdata');
-    for (var x in data){
-        printData.innerHTML += `${x} : ${data[x]}` + "<br><br>";
-    }
-
-    function testFunction(functionlanguage) {
+    function showFunctionTypes(functionlanguage) {
         if (functionlanguage === "lang-default") {
             return;
         } else {
@@ -61,6 +53,21 @@
 
             showdropdowns = document.getElementById(`${functionlanguage}-type-container`);
             showdropdowns.style.display = "flex";
+        }
+    }
+
+    function showFunctionData(functiontype) {
+        if (functiontype === "func-default") {
+            return;
+        } else {
+            k = functiontype.split(",");
+            lang=data[k[0]];
+            type=lang[k[1]];
+            name=type[k[2]];
+            data = name.split(",");
+            syntax=data[0];
+            parameters=data[1];
+            returnvalue=data[2];
         }
     }
 

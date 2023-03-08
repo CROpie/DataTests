@@ -47,4 +47,4 @@ class FunctionAll(models.Model):
     return_value =models.CharField(max_length=64)
 
     def __str__(self):
-        return f"{self.language, self.function_type, self.function_name, self.syntax, self.parameters, self.return_value}"
+        return f"{self.syntax},{self.parameters},{self.return_value}"
