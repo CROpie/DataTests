@@ -1,0 +1,5 @@
+Language,FunctionType,FunctionName,Syntax,Parameters,ReturnValue
+python,string,capitalize,str.capitalize(),N/A,string
+python,string,isnumberic,str.isnumeric(),N/A,bool
+javascript,number,toFixed,number.toFixed(digits),digits - the number of digits to appear after the decimal point,string
+javascript,string,length,str.length,N/A,number
