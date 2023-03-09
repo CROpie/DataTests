@@ -3,13 +3,13 @@
     <head>
         <meta charset='utf-8'>
         <title>Function Database</title>
-        <script src="../../static/funkdata/script2.js" defer></script>
         <link rel="stylesheet" href="../../static/funkdata/styles.css">
     </head>
 
 <body>
-<h1>Choose programming language</h1>
+<div id="title">Function Database</div>
 
+<div id="choice-container">
 <!-- Initialize the language choice drop-down menu-->
 <div id="lang-menu-container">
     <select name="type" id="lang-menu" onchange=showFunctionTypes(this.value)>
@@ -26,48 +26,83 @@
 
     {% for function_type, function_names in function_types.items %}
         <select class="function-menu" onchange=showFunctionData(this.value)>
-            <option value="func-default" >{{ function_type }}</option>
+            <option class="function-name" value="func-default" >{{ function_type }}</option>
             {% for function_name in function_names %}
-                <option value="{{ language }},{{ function_type }},{{ function_name }}" >{{ function_name }}</option>
+                <option class="function-name" value="{{ language }},{{ function_type }},{{ function_name }}" >{{ function_name }}</option>
             {% endfor %}
         </select>
     {% endfor %}
     </div>
 {% endfor %}
+</div>
 
-
-
-
+<div id="full-data-container">
+    <div class="data-container">
+        <div id="syntax-title" class="data-title">Syntax</div>
+        <div id="syntax-data" class="data-field">...</div>
+    </div>
+    <div class="data-container">
+        <div id="parameters-title" class="data-title">Parameters</div>
+        <div id="parameters-data"class="data-field">...</div>
+    </div>
+    <div id="bottom-data-container" class="data-container">
+        <div id="return_value-title" class="data-title">Return Value</div>
+        <div id="return_value-data"class="data-field">...</div>
+    </div>
+</div>
 
 <script>
 
-    let data = JSON.parse("{{LFTJson|escapejs}}");    
+    let database_dictionary = JSON.parse("{{LFTJson|escapejs}}");    
+
+    // Apply css classnames to dynamically created divs
+
+
+    function hideDataFields() {
+            document.querySelector('#syntax-data').innerHTML = "...";
+            document.querySelector('#parameters-data').innerHTML = "...";
+            document.querySelector('#return_value-data').innerHTML = "...";
+    }
 
     function showFunctionTypes(functionlanguage) {
+        document.querySelectorAll('.language-type-container').forEach(container => {
+            container.selectedIndex = 0;
+            container.style.display = 'none';
+                
+        })
+
         if (functionlanguage === "lang-default") {
+            hideDataFields();
             return;
+            
         } else {
-            document.querySelectorAll('.language-type-container').forEach(container => {
-                container.style.display = 'none';
-            })
 
             showdropdowns = document.getElementById(`${functionlanguage}-type-container`);
             showdropdowns.style.display = "flex";
         }
+        hideDataFields()
     }
 
     function showFunctionData(functiontype) {
+        // functiontype is the a comma-separated string of language,function_type,function_name
+        // database_dictionary is the JSON.parsed complete dictionary
         if (functiontype === "func-default") {
+            hideDataFields();
             return;
+
         } else {
             k = functiontype.split(",");
-            lang=data[k[0]];
+            console.log(k);
+            // work through the dictionary using the keywords obtained, to locate the function_name dictionary
+            // the value of the function_name key the string representation of the FunctionAll model.
+            // the string is a comma-separated list of the data relating to that particular function
+            lang=database_dictionary[k[0]];
             type=lang[k[1]];
             name=type[k[2]];
             data = name.split(",");
-            syntax=data[0];
-            parameters=data[1];
-            returnvalue=data[2];
+            document.querySelector('#syntax-data').innerHTML = `${data[0]}`;
+            document.querySelector('#parameters-data').innerHTML = `${data[1]}`;
+            document.querySelector('#return_value-data').innerHTML = `${data[2]}`;
         }
     }
 

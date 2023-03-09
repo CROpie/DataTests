@@ -121,7 +121,3 @@ def index(request):
         "LFTDjango": language_dict,
 
     })
-
-def test(request):
-    return render(request, "funkdata/testing.html")
-
