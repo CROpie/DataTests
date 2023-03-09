@@ -74,11 +74,8 @@ def import_csv(request):
     file.close()
     return render(request, "funkdata/import.html")
 
-
 # Makes a dictionary consisting of {language: {function_type: {function_name: { function_data[] }}}}, which can be utilized in django loops
-# Also sends a JSON dump of the same dictionary, which is used by javascript
-
-def index(request):
+def database_to_dict():
     language_dict = {}
     languages = Language.objects.all()
     
@@ -112,12 +109,25 @@ def index(request):
 
         language_dict[language.unique_language] = function_type_dict
         #print(language_function_types)
-            
-    print(language_dict)
+    
+    return language_dict
+
+# Makes and sends the database dictionary, as well as a JSON dump of the same dictionary, to be used by javascript
+def index(request):
+    language_dict = database_to_dict()
     
     LFTJSON = dumps(language_dict)
     return render(request, "funkdata/index.html", {
         "LFTJson": LFTJSON,
         "LFTDjango": language_dict,
+    })
 
+# As in index
+def new_function(request):
+    language_dict = database_to_dict()
+
+    LFTJSON = dumps(language_dict)
+    return render(request, "funkdata/addnew.html", {
+        "LFTJson": LFTJSON,
+        "LFTDjango": language_dict,
     })

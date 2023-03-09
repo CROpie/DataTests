@@ -1,0 +1,92 @@
+/* ctrl-f5 refresh in browser may be needed to reflect static (including js?) changes */
+
+* {
+    margin: 0px;
+    padding: 0px;
+
+}
+
+body {
+    padding: 10px;
+    margin: 10px;
+    border: 3px solid black;
+
+}
+/* */
+
+#title {
+    font-size: 36px;
+    margin-left: 20px;
+}
+
+ /* */
+
+#choice-container{
+    margin-top: 20px;
+    height: 110px;
+}
+
+#lang-menu-container {
+    margin-top: 10px;
+    margin-bottom: 5px;
+    margin-left: 20px;
+    
+}
+
+#lang-menu {
+    font-size: 30px;
+    border-radius: 10px;
+    padding: 5px;
+}
+
+.language {
+    /* */
+}
+
+/* */
+
+.language-type-container {
+
+    margin-left: 20px;
+}
+
+.function-menu {
+    font-size: 30px;
+    margin-right: 10px;
+
+    border-radius: 10px;
+    padding: 5px;
+
+}
+
+.function-name {
+    font-size: 24px;
+}
+
+/* */
+
+#full-data-container {
+    margin-left: 20px;
+    margin-right: 20px;
+    border: 3px solid black;
+}
+
+.data-container {
+    border-bottom: 1px dashed black;
+}
+
+#bottom-data-container {
+    border-bottom: none;
+}
+
+.data-title {
+    font-size: 36px;
+    font-style: italic;
+    margin-left: 30px;
+}
+
+.data-field {
+    font-size: 24px;
+    margin-left: 10px;
+    margin-bottom: 10px;
+}
