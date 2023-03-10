@@ -4,6 +4,7 @@
         <meta charset='utf-8'>
         <title>Function Database</title>
         <link rel="stylesheet" href="../../static/funkdata/styles_addnew.css">
+        <script type="text/javascript" src="../../static/funkdata/script_addnew.js" defer></script>
     </head>
 <body>
 <div id="title">Add Function</div>
@@ -18,12 +19,13 @@
             {% endfor %}
             <option class="language" id="new-language" value="new-language">**add new language**</option>
     </select>
+    <input type="hidden" id="new-language-field">
 </div>
 
 <!-- Initialize the function_type choice drop-down menus for each language-->
 {% for language, function_types in LFTDjango.items %}
     <div id="{{language}}-type-container" class="language-type-container">
-        <select class="function-menu" onchange=showFunctionData(this.value)>
+        <select class="function-menu" id="{{language}}-function-type-menu" value="{{langugage}}" onchange=showNewFunctionTypeField(this.value)>
             <option class="function-name" value="func-default" >Select Function Type</option>
                 {% for function_type in function_types.keys %}
                     <option class="function-type" id="language-{{ function_type }}" value="{{ function_type }}">{{ function_type }}</option> 
@@ -33,5 +35,29 @@
     </div>
 {% endfor %}
 
+<!-- Default dropdown for when a new language is being added-->
+<div id="frozen-type-container" class="language-type-container">
+    <select class="function-menu">
+            <option class="function-type" id="frozen-function-type">**add new function type**</option>
+    </select>
+</div>
+
+</div>
+
+<div id="full-data-container">
+    <div class="data-container">
+        <div id="syntax-title" class="data-title">Syntax</div>
+        <input id="syntax-data" class="data-field" type="text">
+    </div>
+    <div class="data-container">
+        <div id="parameters-title" class="data-title">Parameters</div>
+        <input id="parameters-data"class="data-field" type="text">
+    </div>
+    <div id="bottom-data-container" class="data-container">
+        <div id="return_value-title" class="data-title">Return Value</div>
+        <input id="return_value-data"class="data-field" type="text">
+    </div>
+</div>
+<button id="submit-new-function" onclick=submitData()>Submit New Function</button>
 </body>
 </html>

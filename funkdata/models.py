@@ -28,15 +28,7 @@ class FunctionName(models.Model):
         #return f"{self.language} {self.function_type} {self.method_name}"
         return f"{self.unique_function_name}"
     
-# Pretty sure there is a way to combine this with FunctionName, but for now lets try this
-class FunctionData(models.Model):
-    function_name = models.ForeignKey(FunctionName, on_delete=models.CASCADE, default=None)
-    syntax = models.CharField(max_length=64)
-    parameters = models.CharField(max_length=64)
-    return_value =models.CharField(max_length=64)
 
-    def __str__(self):
-        return f"{self.syntax}"
     
 class FunctionAll(models.Model):
     language = models.ForeignKey(Language, on_delete=models.CASCADE, default=None)
@@ -48,3 +40,16 @@ class FunctionAll(models.Model):
 
     def __str__(self):
         return f"{self.syntax},{self.parameters},{self.return_value}"
+    
+
+    """
+    # Pretty sure this isnt used anymore, delete when confirmed
+class FunctionData(models.Model):
+    function_name = models.ForeignKey(FunctionName, on_delete=models.CASCADE, default=None)
+    syntax = models.CharField(max_length=64)
+    parameters = models.CharField(max_length=64)
+    return_value =models.CharField(max_length=64)
+
+    def __str__(self):
+        return f"{self.syntax}"
+        """

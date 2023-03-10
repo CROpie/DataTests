@@ -1,8 +1,11 @@
 from django.shortcuts import render
 from .models import Language, FunctionType, FunctionName, FunctionAll
+import json
 from json import dumps
 import csv
 from django.db import IntegrityError
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
 
 def showHowToSendJSON(request):
     # create data dictionary
@@ -126,8 +129,16 @@ def index(request):
 def new_function(request):
     language_dict = database_to_dict()
 
-    LFTJSON = dumps(language_dict)
     return render(request, "funkdata/addnew.html", {
-        "LFTJson": LFTJSON,
         "LFTDjango": language_dict,
     })
+
+@csrf_exempt
+def submit_new(request):
+    if request.method != "POST":
+        return JsonResponse({"error": "POST request required."}, status=400)
+    
+    data = json.loads(request.body)
+
+    print(data)
+    return JsonResponse({"Status": "Data sent successfully"}, status=201)

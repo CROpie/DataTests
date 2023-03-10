@@ -39,14 +39,10 @@ body {
     padding: 5px;
 }
 
-.language {
-    /* */
-}
-
 /* */
 
 .language-type-container {
-
+    display: none;
     margin-left: 20px;
 }
 
