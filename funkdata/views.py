@@ -178,3 +178,68 @@ def submit_new(request):
     check_in_database(temp_function_all)
 
     return JsonResponse({"Status": "Data sent successfully"}, status=201)
+
+@csrf_exempt
+def delete_language(request):
+    if request.method != "POST":
+        return JsonResponse({"error": "POST request required."}, status=400)
+    
+    data = json.loads(request.body)
+    print(data)
+
+    temp_language = Language(unique_language = data["language"])
+    temp_language = Language.objects.get(unique_language = data["language"])
+
+    temp_language.delete()
+
+    return JsonResponse({"Status": "Data sent successfully"}, status=201)
+
+@csrf_exempt
+def delete_function_type(request):
+    if request.method != "POST":
+        return JsonResponse({"error": "POST request required."}, status=400)
+    
+    data = json.loads(request.body)
+    print(data)
+
+    temp_language = Language(unique_language = data["language"])
+    temp_language = Language.objects.get(unique_language = data["language"])
+
+    temp_function_type = FunctionType(
+                                    language = temp_language,
+                                    unique_function_type = data["function_type"],
+                                    )
+    
+    temp_function_type = FunctionType.objects.get(language__unique_language=data["language"], unique_function_type = data["function_type"])
+
+    temp_function_type.delete()
+
+    return JsonResponse({"Status": "Data sent successfully"}, status=201)
+
+@csrf_exempt
+def delete_function_name(request):
+    if request.method != "POST":
+        return JsonResponse({"error": "POST request required."}, status=400)
+    
+    data = json.loads(request.body)
+    print(data)
+
+    temp_language = Language(unique_language = data["language"])
+    temp_language = Language.objects.get(unique_language = data["language"])
+
+    temp_function_type = FunctionType(
+                                    language = temp_language,
+                                    unique_function_type = data["function_type"],
+                                    )
+    
+    temp_function_type = FunctionType.objects.get(language__unique_language=data["language"], unique_function_type = data["function_type"])
+
+    temp_function_name = FunctionName(language = temp_language,
+                                        function_type = temp_function_type,
+                                        unique_function_name = data["function_name"])
+    
+    temp_function_name = FunctionName.objects.get(unique_function_name = data["function_name"])
+
+    temp_function_name.delete()
+
+    return JsonResponse({"Status": "Data sent successfully"}, status=201)

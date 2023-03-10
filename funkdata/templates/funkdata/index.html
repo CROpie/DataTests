@@ -25,11 +25,12 @@
     <div id="{{language}}-type-container" class="language-type-container">
 
     {% for function_type, function_names in function_types.items %}
-        <select class="function-menu" onchange=showFunctionData(this.value)>
-            <option class="function-name" value="func-default" >{{ function_type }}</option>
+        <select class="function-menu" onchange=showFunctionData(this.value) >
+            <option class="function-name" value="func-default">{{ function_type }} </option>
             {% for function_name in function_names %}
                 <option class="function-name" value="{{ language }},{{ function_type }},{{ function_name }}" >{{ function_name }}</option>
             {% endfor %}
+                <option class="function-name" value="deletetagdelete-{{ function_type }}" >**Select For Deletion**</option>
         </select>
     {% endfor %}
     </div>
@@ -49,6 +50,16 @@
         <div id="return_value-title" class="data-title">Return Value</div>
         <div id="return_value-data"class="data-field">...</div>
     </div>
+</div>
+<div id="add-modify-delete-container">
+    <button id="add_function_link" onclick=addData()>Add New Function</button>
+    <button id="modify_current_function" onclick=modifyData()>Modify Selected Function</button>
+    <button id="delete_current_language" onclick=deleteLanguage()>Delete Selected Language</button>
+    <button id="delete_current_function_type" onclick=deleteFunctionType()>Delete Selected Function Type</button>
+    <button id="delete_current_function_name" onclick=deleteFunctionName()>Delete Selected Function</button>
+    <input type="hidden" id="current-language-tag">
+    <input type="hidden" id="current-function-type-tag">
+    <input type="hidden" id="current-function-name-tag">
 </div>
 
 <script>
@@ -76,6 +87,7 @@
 
             showdropdowns = document.getElementById(`${functionlanguage}-type-container`);
             showdropdowns.style.display = "flex";
+            document.querySelector('#current-language-tag').value = functionlanguage;
         }
         hideDataFields()
     }
@@ -83,11 +95,18 @@
     function showFunctionData(functiontype) {
         // functiontype is the a comma-separated string of language,function_type,function_name
         // database_dictionary is the JSON.parsed complete dictionary
-        if (functiontype === "func-default") {
+        if (functiontype === "func-default"){
             hideDataFields();
             return;
 
+        } else if (functiontype.slice(0,15) === "deletetagdelete") {
+            hideDataFields();
+            document.querySelector('#current-function-type-tag').value = functiontype.slice(16);
+            console.log(functiontype.slice(16));
+            return;
+            
         } else {
+
             k = functiontype.split(",");
             console.log(k);
             // work through the dictionary using the keywords obtained, to locate the function_name dictionary
@@ -100,8 +119,65 @@
             document.querySelector('#syntax-data').innerHTML = `${data[0]}`;
             document.querySelector('#parameters-data').innerHTML = `${data[1]}`;
             document.querySelector('#return_value-data').innerHTML = `${data[2]}`;
+            
+            document.querySelector('#current-function-name-tag').value = k[1]
+            document.querySelector('#current-function-name-tag').value = k[2];
         }
     }
+
+    function setTypeTag() {
+        alert("sometext");
+    }
+
+    function deleteLanguage() {
+        delete_function_language = document.querySelector('#current-language-tag').value;
+
+        fetch('/funkdata/deletelang', {
+        method: "POST",
+        body: JSON.stringify({
+            language: delete_function_language,
+        })
+    })
+        .then(response => response.json())
+        .then(result => {
+            alert(result);
+        })
+}
+    function deleteFunctionType() {
+        delete_function_language = document.querySelector('#current-language-tag').value;
+        delete_function_type = document.querySelector('#current-function-type-tag').value;
+        alert(delete_function_type);
+        fetch('/funkdata/deletetype', {
+        method: "POST",
+        body: JSON.stringify({
+            language: delete_function_language,
+            function_type: delete_function_type,
+        })
+    })
+        .then(response => response.json())
+        .then(result => {
+            alert(result);
+        })
+}
+    function deleteFunctionName() {
+        delete_function_language = document.querySelector('#current-language-tag').value;
+        delete_function_type = document.querySelector('#current-function-type-tag').value;
+        delete_function_name = document.querySelector('#current-function-name-tag').value;
+
+        fetch('/funkdata/deletename', {
+        method: "POST",
+        body: JSON.stringify({
+            language: delete_function_language,
+            function_type: delete_function_type,
+            function_name: delete_function_name,
+        })
+    })
+        .then(response => response.json())
+        .then(result => {
+            alert(result);
+        })
+}
+
 
 </script>
 </body>
