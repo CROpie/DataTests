@@ -63,6 +63,15 @@ function check_not_null() {
     }
 }
 
+function whitespace_check(value_submit) {
+    for (i = 0; i < value_submit.length; i++) {
+        if (value_submit.charAt(i) === ' ') {
+            alert("whitespace error");
+            return "error";
+        }
+    }
+}
+
 // ensure that the language is not default nor a blank new language field when trying to submit
 function get_language_submit(selected_language) {
 
@@ -72,6 +81,13 @@ function get_language_submit(selected_language) {
             return "error";
         } else {
             language_submit = document.querySelector("#new-language-field").value;
+
+            space_check = whitespace_check(language_submit);
+            if (space_check === "error") {
+                return "error";
+            } else {
+                return language_submit;
+            }
         }
     }
 
@@ -92,7 +108,13 @@ function get_function_type_submit(selected_language) {
             return "error";
         } else {
             new_function_type = document.querySelector("#new-function-type-field").value;
-            return new_function_type;
+
+            space_check = whitespace_check(new_function_type);
+            if (space_check === "error") {
+                return "error";
+            } else {
+                return new_function_type;
+            }
         }
     } else {
         // not a new language, so the function type dropdown box will be specific to the language chosen
@@ -105,7 +127,13 @@ function get_function_type_submit(selected_language) {
             return "error";
         } else {
             new_function_type = document.querySelector("#new-function-type-field").value;
-            return new_function_type;
+
+            space_check = whitespace_check(new_function_type);
+            if (space_check === "error") {
+                return "error";
+            } else {
+                return new_function_type;
+            }
         }
     }
 
@@ -138,20 +166,21 @@ function submitData() {
         return;
     }
 
+    function_name_submit = document.querySelector("#function-name-data").value;
     syntax_submit = document.querySelector("#syntax-data").value;
     parameters_submit = document.querySelector("#parameters-data").value;
     return_value_submit = document.querySelector("#return_value-data").value;
 
-    console.log(language_submit, function_type_submit, syntax_submit, parameters_submit, return_value_submit);
+    console.log(language_submit, function_type_submit, function_name_submit, syntax_submit, parameters_submit, return_value_submit);
 
     // note: fetch has to use 'body', not some random variable name
     // note: saving the return of stringify as a variable and sending to a different function resulted in errors
-
     fetch('/funkdata/submitnew', {
         method: "POST",
         body: JSON.stringify({
             language: language_submit,
-            function_type: function_type_submit, 
+            function_type: function_type_submit,
+            function_name: function_name_submit,
             syntax: syntax_submit, 
             parameters: parameters_submit, 
             return_value: return_value_submit,
@@ -159,37 +188,6 @@ function submitData() {
     })
         .then(response => response.json())
         .then(result => {
-            console.log(result);
+            alert(result);
         })
 }
-
-    /*
-    validated_data = JSON.stringify({
-        language: language_submit,
-        function_type: function_type_submit, 
-        syntax: syntax_submit, 
-        parameters: parameters_submit, 
-        return_value: return_value_submit,
-    })
-    console.log(validated_data);
-*/
-
-
-
-
-
-// note: fetch has to use 'body', not some random variable name
-/*
-{
-function submitData() {
-    validated_data = collectData()
-    fetch('/funkdata/submitnew', {
-        method: "POST",
-        body: validated_data,
-        })
-/*
-        .then(response => response.json())
-        .then(result => {
-            console.log(result);
-        });
-    */

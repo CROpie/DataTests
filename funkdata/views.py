@@ -141,4 +141,40 @@ def submit_new(request):
     data = json.loads(request.body)
 
     print(data)
+    
+
+    temp_language = Language(unique_language = data["language"])
+    check_in_database(temp_language)
+
+    # After saving a new language, need to retrieve the newly created database entry
+    temp_language = Language.objects.get(unique_language = data["language"])
+
+    temp_function_type = FunctionType(
+                                        language = temp_language,
+                                        unique_function_type = data["function_type"],
+                                        )
+    check_in_database(temp_function_type)
+    
+    # After saving a new function_type, need to retrieve the newly created database entry
+    # Without specifying the language, there can be >1 FunctionType objects with the same function_type, leading to an error
+    # The syntax language__unique_language= traces back the language foreign key to the Language model.
+    temp_function_type = FunctionType.objects.get(language__unique_language=data["language"], unique_function_type = data["function_type"])
+    
+    temp_function_name = FunctionName(language = temp_language,
+                                        function_type = temp_function_type,
+                                        unique_function_name = data["function_name"])
+    check_in_database(temp_function_name)
+
+    # After saving a new function_name, need to retrieve the newly created database entry
+    temp_function_name = FunctionName.objects.get(unique_function_name = data["function_name"])
+
+    temp_function_all = FunctionAll(language = temp_language,
+                                    function_type = temp_function_type,
+                                    function_name = temp_function_name,
+                                    syntax = data["syntax"],
+                                    parameters = data["parameters"],
+                                    return_value = data["return_value"],
+    )
+    check_in_database(temp_function_all)
+
     return JsonResponse({"Status": "Data sent successfully"}, status=201)
