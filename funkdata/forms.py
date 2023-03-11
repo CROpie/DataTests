@@ -2,6 +2,7 @@ from django import forms
 
 # Not currently using forms, since the values to be entered come from a mixture of drop-downs and input fields
 # May try to include them by using hidden input field = value of the dropdown...
+# the attribute form-id in textfield etc may be useful..
 
 class NewFunctionForm(forms.Form):
     language = forms.CharField(max_length=64)

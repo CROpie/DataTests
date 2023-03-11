@@ -39,9 +39,6 @@ body {
     padding: 5px;
 }
 
-.language {
-    /* */
-}
 
 /* */
 
@@ -85,8 +82,41 @@ body {
     margin-left: 30px;
 }
 
+/* https://css-tricks.com/the-cleanest-trick-for-autogrowing-textareas/ 
+   allows for an expanding text area (which can't autoexpand by conventional methods) */
+   
+.data-grow-wrap {
+    display: grid;
+}
+
+.data-grow-wrap::after {
+    content: attr(data-replicated-value) " ";
+    white-space: pre-wrap;
+    visibility: hidden;
+}
+
+.data-grow-wrap > textarea {
+    resize: none;
+    overflow: hidden;
+}
+
+.data-grow-wrap > textarea,
+.data-grow-wrap::after {
+/* necessary so that multiple lines won't hide the top line */
+  padding: 0.5rem;
+
+  /* Place on top of each other */
+  grid-area: 1 / 1 / 2 / 2;
+}
+
+/* pointer-events: none; can make it so can't click on the box */
 .data-field {
-    font-size: 24px;
+    font-size: 16px;
     margin-left: 10px;
     margin-bottom: 10px;
+    width: 90%;
+    height: auto;
+    color: black;
+    border: none;
 }
+

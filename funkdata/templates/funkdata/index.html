@@ -40,20 +40,27 @@
 <div id="full-data-container">
     <div class="data-container">
         <div id="syntax-title" class="data-title">Syntax</div>
-        <div id="syntax-data" class="data-field">...</div>
+        <div class="data-grow-wrap">
+            <textarea id="syntax-data" class="data-field" disabled onInput="this.parentNode.dataset.replicatedValue = this.value"></textarea>
+        </div>
     </div>
     <div class="data-container">
         <div id="parameters-title" class="data-title">Parameters</div>
-        <div id="parameters-data"class="data-field">...</div>
+        <div class="data-grow-wrap">
+            <textarea id="parameters-data" class="data-field" disabled onInput="this.parentNode.dataset.replicatedValue = this.value"></textarea>
+        </div>
     </div>
     <div id="bottom-data-container" class="data-container">
         <div id="return_value-title" class="data-title">Return Value</div>
-        <div id="return_value-data"class="data-field">...</div>
+        <div class="data-grow-wrap">
+            <textarea id="return_value-data" class="data-field" disabled onInput="this.parentNode.dataset.replicatedValue = this.value"></textarea>
+        </div>
     </div>
 </div>
 <div id="add-modify-delete-container">
     <button id="add_function_link" onclick=addData()>Add New Function</button>
-    <button id="modify_current_function" onclick=modifyData()>Modify Selected Function</button>
+    <button id="allow_modify" onclick=allowModify()>Modify Selected Function</button>
+    <button id="modify_current_function" onclick=modifyData()>Save Modifications</button>
     <button id="delete_current_language" onclick=deleteLanguage()>Delete Selected Language</button>
     <button id="delete_current_function_type" onclick=deleteFunctionType()>Delete Selected Function Type</button>
     <button id="delete_current_function_name" onclick=deleteFunctionName()>Delete Selected Function</button>
@@ -67,9 +74,9 @@
     let database_dictionary = JSON.parse("{{LFTJson|escapejs}}");    
 
     function hideDataFields() {
-            document.querySelector('#syntax-data').innerHTML = "...";
-            document.querySelector('#parameters-data').innerHTML = "...";
-            document.querySelector('#return_value-data').innerHTML = "...";
+            document.querySelector('#syntax-data').value = " ";
+            document.querySelector('#parameters-data').value = " ";
+            document.querySelector('#return_value-data').value = " ";
     }
 
     function showFunctionTypes(functionlanguage) {
@@ -115,25 +122,32 @@
             type=lang[k[1]];
             name=type[k[2]];
             data = name.split(",");
-            document.querySelector('#syntax-data').innerHTML = `${data[0]}`;
-            document.querySelector('#parameters-data').innerHTML = `${data[1]}`;
-            document.querySelector('#return_value-data').innerHTML = `${data[2]}`;
+            document.querySelector('#syntax-data').value = `${data[0]}`;
+            document.querySelector('#parameters-data').value = `${data[1]}`;
+            document.querySelector('#return_value-data').value = `${data[2]}`;
             
             document.querySelector('#current-function-type-tag').value = k[1]
             document.querySelector('#current-function-name-tag').value = k[2];
         }
     }
 
+    function addData() {
+        window.location.href = "/funkdata/new"
+    }
+
+    function allowModify() {
+        document.querySelector('#syntax-data').disabled = false;
+        document.querySelector('#parameters-data').disabled = false;
+        document.querySelector('#return_value-data').disabled = false;
+    }
+
     function modifyData() {
         modify_function_language = document.querySelector('#current-language-tag').value;
         modify_function_type = document.querySelector('#current-function-type-tag').value;
         modify_function_name = document.querySelector('#current-function-name-tag').value;
-
-        //modify_syntax = document.querySelector("#syntax-data").value;
-        modify_syntax = "insert me plz!";
-        modify_parameters = document.querySelector("#parameters-data").textContent;
-        modify_return_value = document.querySelector("#return_value-data").textContent;
-        console.log(modify_function_language,modify_function_type,modify_function_name,modify_parameters,modify_return_value)
+        modify_syntax = document.querySelector('#syntax-data').value;
+        modify_parameters = document.querySelector('#parameters-data').value;
+        modify_return_value = document.querySelector('#return_value-data').value;
         
         fetch('/funkdata/modifydata', {
         method: "POST",
