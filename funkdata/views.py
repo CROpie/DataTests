@@ -7,19 +7,6 @@ from django.db import IntegrityError
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 
-def showHowToSendJSON(request):
-    # create data dictionary
-    dataDictionary = {
-        'hello': 'world',
-        'geeks': 'forgeeks',
-        'ABC': 123,
-        'list': ['geeks', 4, 'geeks']
-    }
-    # dump data
-    dataJSON = dumps(dataDictionary)
-    return render(request, "funkdata/index.html", {
-        'data': dataJSON})
-
 def check_in_database(class_name):
     try:
         class_name.save()
@@ -192,7 +179,7 @@ def delete_language(request):
 
     temp_language.delete()
 
-    return JsonResponse({"Status": "Data sent successfully"}, status=201)
+    return JsonResponse({"Status": "Language deleted successfully"}, status=201)
 
 @csrf_exempt
 def delete_function_type(request):
@@ -214,7 +201,7 @@ def delete_function_type(request):
 
     temp_function_type.delete()
 
-    return JsonResponse({"Status": "Data sent successfully"}, status=201)
+    return JsonResponse({"Status": "Function type deleted successfully"}, status=201)
 
 @csrf_exempt
 def delete_function_name(request):
@@ -242,4 +229,47 @@ def delete_function_name(request):
 
     temp_function_name.delete()
 
-    return JsonResponse({"Status": "Data sent successfully"}, status=201)
+    return JsonResponse({"Status": "Function deleted successfully"}, status=201)
+
+@csrf_exempt
+def modify_data(request):
+    if request.method != "POST":
+        return JsonResponse({"error": "POST request required."}, status=400)
+    
+    data = json.loads(request.body)
+    print(data)
+
+    temp_language = Language(unique_language = data["language"])
+    temp_language = Language.objects.get(unique_language = data["language"])
+
+    temp_function_type = FunctionType(
+                                    language = temp_language,
+                                    unique_function_type = data["function_type"],
+                                    )
+    
+    temp_function_type = FunctionType.objects.get(language__unique_language = data["language"], unique_function_type = data["function_type"])
+
+    temp_function_name = FunctionName(language = temp_language,
+                                        function_type = temp_function_type,
+                                        unique_function_name = data["function_name"])
+    
+    temp_function_name = FunctionName.objects.get(unique_function_name = data["function_name"])
+
+
+    # Retrieve the current FunctionAll object in the database, and remove it
+    old_function_all = FunctionAll.objects.get(language__unique_language=data["language"],
+                                               function_type__unique_function_type = data["function_type"],
+                                               function_name__unique_function_name=data["function_name"])
+    old_function_all.delete()
+
+    # Put in the values for the 'modified' FunctionAll objetct, and store it
+    temp_function_all = FunctionAll(language = temp_language,
+                                    function_type = temp_function_type,
+                                    function_name = temp_function_name,
+                                    syntax = data["syntax"],
+                                    parameters = data["parameters"],
+                                    return_value = data["return_value"],
+                                    )
+    temp_function_all.save()
+
+    return JsonResponse({"Status": "Data modified successfully"}, status=201)

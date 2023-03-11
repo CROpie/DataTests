@@ -9,5 +9,6 @@ urlpatterns = [
     path("deletelang", views.delete_language, name="deletelang"),
     path("deletetype", views.delete_function_type, name="deletetype"),
     path("deletename", views.delete_function_name, name="deletename"),
+    path("modifydata", views.modify_data, name="modifydata"),
     path("import", views.import_csv, name="import_csv"),
 ]

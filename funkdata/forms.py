@@ -1,6 +1,9 @@
 from django import forms
 
-class NewFunctionForm(models.Model):
+# Not currently using forms, since the values to be entered come from a mixture of drop-downs and input fields
+# May try to include them by using hidden input field = value of the dropdown...
+
+class NewFunctionForm(forms.Form):
     language = forms.CharField(max_length=64)
     function_type = forms.CharField(max_length=64)
     function_name = forms.CharField(max_length=64)

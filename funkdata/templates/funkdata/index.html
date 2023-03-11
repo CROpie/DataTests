@@ -102,7 +102,6 @@
         } else if (functiontype.slice(0,15) === "deletetagdelete") {
             hideDataFields();
             document.querySelector('#current-function-type-tag').value = functiontype.slice(16);
-            console.log(functiontype.slice(16));
             return;
             
         } else {
@@ -120,13 +119,38 @@
             document.querySelector('#parameters-data').innerHTML = `${data[1]}`;
             document.querySelector('#return_value-data').innerHTML = `${data[2]}`;
             
-            document.querySelector('#current-function-name-tag').value = k[1]
+            document.querySelector('#current-function-type-tag').value = k[1]
             document.querySelector('#current-function-name-tag').value = k[2];
         }
     }
 
-    function setTypeTag() {
-        alert("sometext");
+    function modifyData() {
+        modify_function_language = document.querySelector('#current-language-tag').value;
+        modify_function_type = document.querySelector('#current-function-type-tag').value;
+        modify_function_name = document.querySelector('#current-function-name-tag').value;
+
+        //modify_syntax = document.querySelector("#syntax-data").value;
+        modify_syntax = "insert me plz!";
+        modify_parameters = document.querySelector("#parameters-data").textContent;
+        modify_return_value = document.querySelector("#return_value-data").textContent;
+        console.log(modify_function_language,modify_function_type,modify_function_name,modify_parameters,modify_return_value)
+        
+        fetch('/funkdata/modifydata', {
+        method: "POST",
+        body: JSON.stringify({
+            language: modify_function_language,
+            function_type: modify_function_type,
+            function_name: modify_function_name,
+            syntax: modify_syntax, 
+            parameters: modify_parameters, 
+            return_value: modify_return_value
+        })
+    })
+        .then(response => response.json())
+        .then(result => {
+            alert(result);
+        })
+        
     }
 
     function deleteLanguage() {
