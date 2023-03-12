@@ -17,20 +17,27 @@ body {
 #title {
     font-size: 36px;
     margin-left: 20px;
+    margin-right: 20px;
 }
 
  /* */
 
 #choice-container{
+    border: 3px solid black;
+
     margin-top: 20px;
-    height: 110px;
+    margin-left: 20px;
+    margin-right: 20px;
 }
 
 #lang-menu-container {
+    display: flex;
+    align-items: center;
+
     margin-top: 10px;
-    margin-bottom: 5px;
+    margin-bottom: 10px;
     margin-left: 20px;
-    
+    margin-right: 20px;
 }
 
 #lang-menu {
@@ -39,27 +46,53 @@ body {
     padding: 5px;
 }
 
+.lang-menu,
+.function-menu {
+    width: auto;
+}
+
 
 /* */
 
 .language-type-container {
     display: none;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+
     margin-left: 20px;
+    margin-right: 20px;
+    margin-bottom: 5px;
 }
 
 .function-menu {
-    font-size: 30px;
-    margin-right: 10px;
-
+    font-size: 20px;
     border-radius: 10px;
     padding: 5px;
+    margin-right: 15px;
+    margin-bottom: 5px;
+}
 
+.new-function-button {
+    border-radius: 10px;
+    padding-left: 10px;
+    padding-right: 10px;
+    margin-right: 10px;
 }
 
 .function-name {
     font-size: 24px;
 }
 
+#new-data-type-container {
+    display: none;
+    align-items: center;
+
+    margin-left: 20px;
+    margin-right: 20px;
+    margin-bottom: 10px;
+
+}
 /* */
 
 #full-data-container {
@@ -87,6 +120,8 @@ body {
    
 .data-grow-wrap {
     display: grid;
+
+    margin-right: 20px;
 }
 
 .data-grow-wrap::after {
@@ -110,13 +145,71 @@ body {
 }
 
 /* pointer-events: none; can make it so can't click on the box */
+/* height: auto; for resizing the window / making the box bigger with more text, but stopped working at some stage...? */
 .data-field {
     font-size: 16px;
     margin-left: 10px;
     margin-bottom: 10px;
-    width: 90%;
     height: auto;
     color: black;
     border: none;
+    margin-right: 10px;
+    background-color: lightcyan;
+    border-radius: 10px;
+    padding: 5px;
 }
 
+#function-name-container {
+    display: none;
+    margin-left: 20px;
+    margin-right: 20px;
+    border: 3px solid black;
+}
+
+.add-new {
+    color:white;
+    background-color: black;
+}
+
+#delete-function-type {
+    color: red;
+    background-color: black;
+}
+
+.data-field-choice {
+    height: 32px;
+    margin-right: 10px;
+    margin-bottom: 0px;
+    border-radius: 10px;
+    padding-left: 10px;
+    width: 90%;
+    background-color: lightcyan;
+}
+
+#function-name-container {
+    display: none;
+    align-items: center;
+}
+
+#submit-new-function-button {
+    margin-right: 20px;
+}
+
+.bottombutton {
+    width: 20%;
+}
+
+.bottombutton,
+#submit-new-function-button,
+.new-function-button {
+    font-size: 16px;
+    padding: 5px;
+}
+
+#add-modify-delete-container {
+    display: flex;
+    justify-content: space-between;
+    margin-left: 20px;
+    margin-right: 20px;
+    border: 3px solid black;
+}

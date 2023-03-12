@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, HttpResponseRedirect
 from .models import Language, FunctionType, FunctionName, FunctionAll
 import json
 from json import dumps
@@ -112,14 +112,6 @@ def index(request):
         "LFTDjango": language_dict,
     })
 
-# As in index
-def new_function(request):
-    language_dict = database_to_dict()
-
-    return render(request, "funkdata/addnew.html", {
-        "LFTDjango": language_dict,
-    })
-
 @csrf_exempt
 def submit_new(request):
     if request.method != "POST":
@@ -128,7 +120,6 @@ def submit_new(request):
     data = json.loads(request.body)
 
     print(data)
-    
 
     temp_language = Language(unique_language = data["language"])
     check_in_database(temp_language)
@@ -165,6 +156,7 @@ def submit_new(request):
     check_in_database(temp_function_all)
 
     return JsonResponse({"Status": "Data sent successfully"}, status=201)
+
 
 @csrf_exempt
 def delete_language(request):
