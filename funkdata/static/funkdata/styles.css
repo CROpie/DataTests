@@ -73,11 +73,12 @@ body {
     margin-bottom: 5px;
 }
 
-.new-function-button {
+#new-function-type-button {
     border-radius: 10px;
     padding-left: 10px;
     padding-right: 10px;
     margin-right: 10px;
+    flex-shrink: 0;
 }
 
 .function-name {
@@ -189,6 +190,7 @@ body {
 #function-name-container {
     display: none;
     align-items: center;
+    padding: 5px;
 }
 
 #submit-new-function-button {
@@ -201,7 +203,7 @@ body {
 
 .bottombutton,
 #submit-new-function-button,
-.new-function-button {
+#new-function-type-button {
     font-size: 16px;
     padding: 5px;
 }

@@ -4,6 +4,7 @@
         <meta charset='utf-8'>
         <title>Function Database</title>
         <link rel="stylesheet" href="../../static/funkdata/styles.css">
+        <script src="../../static/funkdata/script.js" defer></script> 
     </head>
 
 <body>
@@ -36,7 +37,7 @@
     <div id="{{language}}-type-container" class="language-type-container">
 
     {% for function_type, function_names in function_types.items %}
-        <select class="function-menu" id="function-menu-{{ language }}-{{ function_type }}" onchange="showFunctionData(this.value, this.id, this.selectedIndex)">
+        <select class="function-menu" id="function-menu-{{ language }}-{{ function_type }}" onchange="chooseFunction(this.value, this.id, this.selectedIndex)">
             <option class="function-name" value="func-default">{{ function_type }} </option>
             <option class="language" disabled>------------------------</option>
             {% for function_name in function_names %}
@@ -54,7 +55,7 @@
 {% endfor %}
 
     <div id="new-data-type-container">
-        <button id="button-{{ function_type }}" class="new-function-button" onclick=newFunctionTypeButton()>New Function Type</button>
+        <button id="new-function-type-button" onclick=showNewFunctionTypeField()>New Function Type</button>
         <input id="new-function-type-field" class="data-field data-field-choice" type="text">
     </div>
 </div>
@@ -83,12 +84,12 @@
 <div id="function-name-container">
     <div id="function-name-title" class="data-title">Name:</div>
     <input type="text" id="function-name-data" class="data-field data-field-choice"></input>
-    <button id="submit-new-function-button" onclick=submitData()>Submit</button>
+    <button id="submit-new-function-button" onclick=submitNewFunction()>Submit</button>
 </div>
 
 <div id="add-modify-delete-container">
     <button id="allow_modify" class="bottombutton" onclick=allowModify() disabled>Modify Selected Function</button>
-    <button id="modify_current_function" class="bottombutton" onclick=modifyData() disabled>Save Modifications</button>
+    <button id="modify_current_function" class="bottombutton" onclick=saveModifications() disabled>Save Modifications</button>
     <button id="delete_current_language" class="bottombutton" onclick=deleteLanguage() disabled>Delete Selected Language</button>
     <button id="delete_current_function_type" class="bottombutton" onclick=deleteFunctionType() disabled>Delete Selected Function Type</button>
     <button id="delete_current_function_name" class="bottombutton" onclick=deleteFunctionName() disabled>Delete Selected Function</button>
@@ -97,147 +98,160 @@
     <input type="hidden" id="current-function-name-tag">
 </div>
 
+</body>
 <script>
-
     let database_dictionary = JSON.parse("{{LFTJson|escapejs}}");
 
-    function setButtons(tag) {
-        if (tag === "language-tag") {
+function setButtons(tag) {
+    if (tag === "language-tag") {
         document.querySelector("#delete_current_language").disabled = false;
         document.querySelector("#delete_current_function_type").disabled = true;
         document.querySelector("#delete_current_function_name").disabled = true;
-        document.querySelector("#new-data-type-container").style.display = "flex";
-        }
     }
 
-    function hideDataFields() {
-            document.querySelector('#syntax-data').value = "";
-            document.querySelector('#parameters-data').value = "";
-            document.querySelector('#return_value-data').value = "";
+    if (tag === "delete-type") {
+        document.querySelector("#delete_current_function_type").disabled = false;
+        document.querySelector("#delete_current_function_name").disabled = true;
+     }
+
+    if (tag === "function-chosen") {
+        document.querySelector("#allow_modify").disabled = false;
+        document.querySelector("#delete_current_function_type").disabled = true;
+        document.querySelector("#delete_current_function_name").disabled = false;
     }
+}
 
-    // reset the borders to none if no longer creating a new entry
-    function resetDataBorders() {
-        document.querySelectorAll(".data-field").forEach(container => {
-        container.style.border = 'none';
-        })
-    }
+function resetDataFields() {
+    document.querySelector('#syntax-data').value = "";
+    document.querySelector('#parameters-data').value = "";
+    document.querySelector('#return_value-data').value = "";
+}
 
-    function chooseLanguage(language) {
-        // Reset most of the fields to their default state. Used when re-selecting a langugage
-        // Language-tag will also reset the function type dropdowns (not used with re-selecting a funtion type)
-        resetAll("language-tag");
+// reset the borders to none if no longer creating a new entry
+function resetDataBorders() {
+    document.querySelectorAll(".data-field").forEach(container => {
+    container.style.border = 'none';
+    })
+}
 
-        // Set up the appropriate buttons
-        setButtons("language-tag");
+function chooseLanguage(language) {
+    // Reset most of the fields to their default state. Used when re-selecting a langugage
+    // Language-tag will also reset the function type dropdowns (not used with re-selecting a funtion type)
+    resetAll("language-tag");
 
+    // Set up the appropriate buttons
+    setButtons("language-tag");
 
-        if (language === "lang-default") {
-            hideDataFields();
-            document.querySelector("#new-data-type-container").style.display = "none";
-            return;
-            
-        } else if (language === "new-language") {
+    // Only effect of choosing default is clearing the fields
+    if (language === "lang-default") {
+        return;
+        
+    } else if (language === "new-language") {
 
+        // Every field opens up for entering data
         document.querySelector("#new-language-field").setAttribute('type', "text");
-
         document.querySelector("#new-function-type-field").setAttribute('type', "text");
-
         document.querySelector("#function-name-container").style.display = "flex";
 
         allowModify();
+        document.querySelector("#modify_current_function").disabled = true;
 
-        } else {
+    } else {
 
-            showdropdowns = document.querySelector(`#${language}-type-container`);
-            showdropdowns.style.display = "flex";
-            document.querySelector('#current-language-tag').value = language;
-        }
+        // A language was chosen, so the specific container relating to it is accessed exclusively
+        document.querySelector(`#${language}-type-container`).style.display = "flex";
+
+        // The chosen language is stored in a hidden field. Not necessary, but is consistent with storing the other drop-down values
+        document.querySelector('#current-language-tag').value = language;
+    }
+
+    document.querySelector("#new-data-type-container").style.display = "flex";
+}
+
+function chooseFunction(functiontype, dropdown_id, current_selected_index) {
+    
+    // Reset most of the fields to their default state.
+    // The type tag will reset all function menus before restoring the position of the clicked one
+    // (Only relevent if switching between multiple function menus of the same language)
+    resetAll("type-tag");
+    document.querySelector(`#${dropdown_id}`).selectedIndex = current_selected_index;
+
+    // functiontype is a comma-separated string of language,function_type,function_name
+    // database_dictionary is the JSON.parsed complete dictionary
+    if (functiontype === "func-default"){
+        return;
+
+    } else if (functiontype.slice(0,15) === "deletetagdelete") {
+
+        // Store the function type in a hidden variable (by slicing off the delete tag)
+        document.querySelector('#current-function-type-tag').value = functiontype.slice(16);
+
+        // Set up the appropriate buttons
+        setButtons("delete-type")
+
+        return;
+
+    } else if (functiontype.slice(0,9) === "addtagadd") {
+
+        // Store the function type in a hidden variable (by slicing off the add tag)
+        document.querySelector('#current-function-type-tag').value = functiontype.slice(10);
+
+        allowModify();
+        document.querySelector("#modify_current_function").disabled = true;
+
+        document.querySelector("#new-function-type-button").disabled = true;
+        document.querySelector("#function-name-container").style.display = "flex";
+        return;
+
+    } else {
+        // A specific function was chosen. Store the identifying variables in a list.
+        dictkeys = functiontype.split(",");
         
-        hideDataFields()
-    }
-
-    function showFunctionData(functiontype, dropdown_id, current_selected_index) {
-        // Reset most of the fields to their default state. Used when re-selecting a langugage
-        resetAll("type-tag");
-
-        // Resets all function menus before restoring the position of the clicked one
-        // Only relevent if switching between multiple function menus of the same language
-        document.querySelectorAll('.function-menu').forEach(dropdown => {
-            dropdown.selectedIndex = '0';
-        })
-        document.querySelector(`#${dropdown_id}`).selectedIndex = current_selected_index;
-
-        // functiontype is the a comma-separated string of language,function_type,function_name
-        // database_dictionary is the JSON.parsed complete dictionary
-        if (functiontype === "func-default"){
-            hideDataFields();
-            return;
-
-        } else if (functiontype.slice(0,15) === "deletetagdelete") {
-            hideDataFields();
-            document.querySelector('#current-function-type-tag').value = functiontype.slice(16);
-            document.querySelector("#delete_current_function_type").disabled = false;
-            document.querySelector("#delete_current_function_name").disabled = true;
-            return;
-
-        } else if (functiontype.slice(0,9) === "addtagadd") {
-
-            hideDataFields();
-            functiontype = functiontype.slice(10);
-            document.querySelector('#current-function-type-tag').value = functiontype;
-
-            allowModify();
-            document.querySelector("#function-name-container").style.display = "flex";
-            return;
-
-        } else {
-            
-            k = functiontype.split(",");
-
-            // work through the dictionary using the keywords obtained, to locate the function_name dictionary
-            // the value of the function_name key the string representation of the FunctionAll model.
-            // the string is a comma-separated list of the data relating to that particular function
-            lang=database_dictionary[k[0]];
-            type=lang[k[1]];
-            name=type[k[2]];
-            data = name.split(",");
-            document.querySelector('#syntax-data').value = `${data[0]}`;
-            document.querySelector('#parameters-data').value = `${data[1]}`;
-            document.querySelector('#return_value-data').value = `${data[2]}`;
-            
-            document.querySelector('#current-function-type-tag').value = k[1]
-            document.querySelector('#current-function-name-tag').value = k[2];
-
-            document.querySelector("#allow_modify").disabled = false;
-
-            document.querySelector("#delete_current_function_type").disabled = true;
-            document.querySelector("#delete_current_function_name").disabled = false;
-        }
-    }
-
-    function allowModify() {
-        document.querySelector('#syntax-data').disabled = false;
-        document.querySelector('#parameters-data').disabled = false;
-        document.querySelector('#return_value-data').disabled = false;
-        document.querySelector("#modify_current_function").disabled = false;
-        document.querySelectorAll(".data-field").forEach(container => {
-        container.style.background = 'lightcyan';
-        })
-    }
-
-    function modifyData() {
-        result = confirm("Are you sure you want to modify the data?")
-        if(result)
-        {
-        modify_function_language = document.querySelector('#current-language-tag').value;
-        modify_function_type = document.querySelector('#current-function-type-tag').value;
-        modify_function_name = document.querySelector('#current-function-name-tag').value;
-        modify_syntax = document.querySelector('#syntax-data').value;
-        modify_parameters = document.querySelector('#parameters-data').value;
-        modify_return_value = document.querySelector('#return_value-data').value;
+        // work through the dictionary using the keywords obtained, to locate the function_name dictionary which stores all the data
+        // ( {lang: {type: {name: "data0,data1,..."}}}
+        // the value of the function_name key the string representation of the FunctionAll model.
+        // the string is a comma-separated list of the data relating to that particular function
+        lang=database_dictionary[dictkeys[0]];
+        type=lang[dictkeys[1]];
+        name=type[dictkeys[2]];
+        data = name.split(",");
         
-        fetch('/funkdata/modifydata', {
+        // Retrieve and display the data
+        document.querySelector('#syntax-data').value = `${data[0]}`;
+        document.querySelector('#parameters-data').value = `${data[1]}`;
+        document.querySelector('#return_value-data').value = `${data[2]}`;
+        
+        // Store the function type and name in hidden variables
+        document.querySelector('#current-function-type-tag').value = dictkeys[1]
+        document.querySelector('#current-function-name-tag').value = dictkeys[2];
+
+        setButtons("function-chosen");
+    }
+}
+
+function allowModify() {
+    document.querySelector('#syntax-data').disabled = false;
+    document.querySelector('#parameters-data').disabled = false;
+    document.querySelector('#return_value-data').disabled = false;
+    document.querySelector("#modify_current_function").disabled = false;
+    document.querySelectorAll(".data-field").forEach(container => {
+    container.style.background = 'pink';
+    })
+}
+
+function saveModifications() {
+    result = confirm("Are you sure you want to modify the data?")
+    if(result) {
+    
+    // Collect the data from each relevant field, whether it has been modified or not
+    modify_function_language = document.querySelector('#current-language-tag').value;
+    modify_function_type = document.querySelector('#current-function-type-tag').value;
+    modify_function_name = document.querySelector('#current-function-name-tag').value;
+    modify_syntax = document.querySelector('#syntax-data').value;
+    modify_parameters = document.querySelector('#parameters-data').value;
+    modify_return_value = document.querySelector('#return_value-data').value;
+    
+    fetch('/funkdata/modifydata', {
         method: "POST",
         body: JSON.stringify({
             language: modify_function_language,
@@ -248,286 +262,295 @@
             return_value: modify_return_value
         })
     })
-        // the way to access the jsonresponse seems to be result . <keyword> for some reason
-        .then(response => response.json())
-        .then(result => {
-            alert(result.Status);
-            location.reload();
-        })
-        }
-    }
-
-    function deleteLanguage() {
-        result = confirm("Are you sure you want to delete this lanuage? It will delete the associated data as well.")
-        if(result)
-        {
-        delete_function_language = document.querySelector('#current-language-tag').value;
-
-        fetch('/funkdata/deletelang', {
-        method: "POST",
-        body: JSON.stringify({
-            language: delete_function_language,
-        })
+    // the way to access the jsonresponse seems to be result . <keyword> for some reason
+    // Alert the status and refresh the page to allow the changes to be seen immediately
+    .then(response => response.json())
+    .then(result => {
+        alert(result.Status);
+        location.reload();
     })
-        .then(response => response.json())
-        .then(result => {
-            alert(result.Status);
-            location.reload();
-        })
     }
 }
-    function deleteFunctionType() {
-        result = confirm("Are you sure you want to delete this function type?")
-        if(result)
-        {
-        delete_function_language = document.querySelector('#current-language-tag').value;
-        delete_function_type = document.querySelector('#current-function-type-tag').value;
-        alert(delete_function_type);
-        fetch('/funkdata/deletetype', {
+
+function deleteLanguage() {
+    result = confirm("Are you sure you want to delete this lanuage? It will delete the associated data as well.")
+    if(result) {
+    
+    delete_language = document.querySelector('#current-language-tag').value;
+
+    fetch('/funkdata/deletelang', {
         method: "POST",
         body: JSON.stringify({
-            language: delete_function_language,
+            language: delete_language,
+        })
+    })
+    .then(response => response.json())
+    .then(result => {
+        alert(result.Status);
+        location.reload();
+    })
+    }
+}
+
+function deleteFunctionType() {
+    result = confirm("Are you sure you want to delete this function type?")
+    if(result) {
+
+    delete_language = document.querySelector('#current-language-tag').value;
+    delete_function_type = document.querySelector('#current-function-type-tag').value;
+
+    fetch('/funkdata/deletetype', {
+        method: "POST",
+        body: JSON.stringify({
+            language: delete_language,
             function_type: delete_function_type,
         })
     })
-        .then(response => response.json())
-        .then(result => {
-            alert(result.Status);
-            location.reload();
-        })
+    .then(response => response.json())
+    .then(result => {
+        alert(result.Status);
+        location.reload();
+    })
     }
 }
-    function deleteFunctionName() {
-        result = confirm("Are you sure you want to delete this funtion?")
-        if(result)
-        {
-        delete_function_language = document.querySelector('#current-language-tag').value;
-        delete_function_type = document.querySelector('#current-function-type-tag').value;
-        delete_function_name = document.querySelector('#current-function-name-tag').value;
+function deleteFunctionName() {
+    result = confirm("Are you sure you want to delete this funtion?")
+    if(result) {
 
-        fetch('/funkdata/deletename', {
-        method: "POST",
+    delete_language = document.querySelector('#current-language-tag').value;
+    delete_function_type = document.querySelector('#current-function-type-tag').value;
+    delete_function_name = document.querySelector('#current-function-name-tag').value;
+
+    fetch('/funkdata/deletename', {
+    method: "POST",
         body: JSON.stringify({
-            language: delete_function_language,
+            language: delete_language,
             function_type: delete_function_type,
             function_name: delete_function_name,
         })
     })
-        .then(response => response.json())
-        .then(result => {
-            alert(result.Status);
-            location.reload();
-        })
+    .then(response => response.json())
+    .then(result => {
+        alert(result.Status);
+        location.reload();
+    })
     }
 }
 
+function showNewFunctionTypeField() {
 
+document.querySelector("#new-function-type-field").setAttribute('type', "text");
 
+document.querySelector("#function-name-container").style.display = "flex";
+document.querySelector("#current-function-type-tag").value = "new-function-type";
 
+// Clear the data fields and reset any open function menus
+resetDataFields();
+document.querySelectorAll('.function-menu').forEach(dropdown => {
+        dropdown.selectedIndex = '0';
+})
 
-
-
-
-
-
-
-function newFunctionTypeButton() {
-
-    document.querySelector("#new-function-type-field").setAttribute('type', "text");
-
-    document.querySelector("#function-name-container").style.display = "flex";
-    document.querySelector("#current-function-type-tag").value = "new-function-type";
-
-    // Clear the data fields and reset any open function menus
-    hideDataFields();
-    document.querySelectorAll('.function-menu').forEach(dropdown => {
-            dropdown.selectedIndex = '0';
-    })
-
-    allowModify();    
+allowModify();
+document.querySelector("#modify_current_function").disabled = true;
 }
 
 // Checks that none of the data fields are empty when trying to submit
-function check_not_null() {
-    if ((!document.querySelector("#syntax-data").value) || 
-        (!document.querySelector("#parameters-data").value) || 
-        (!document.querySelector("#return_value-data").value)) {
-        alert("blank data field error")
-        return "error";
-    }
+function checkNotNull() {
+if ((!document.querySelector("#syntax-data").value) || 
+    (!document.querySelector("#parameters-data").value) || 
+    (!document.querySelector("#return_value-data").value)) {
+    alert("blank data field error")
+    return "error";
+}
 }
 
 function whitespace_check(value_submit) {
-    for (i = 0; i < value_submit.length; i++) {
-        if (value_submit.charAt(i) === ' ') {
-            alert("whitespace error");
-            return "error";
-        }
-    }
-}
-
-// ensure that the language is not default nor a blank new language field when trying to submit
-function get_language_submit(selected_language) {
-
-    if (selected_language === "new-language") {
-        if (!document.querySelector("#new-language-field").value) {
-            alert("blank_language_field_error");
-            return "error";
-        } else {
-            language_submit = document.querySelector("#new-language-field").value;
-
-            space_check = whitespace_check(language_submit);
-            if (space_check === "error") {
-                return "error";
-            } else {
-                return language_submit;
-            }
-        }
-    }
-
-    if (selected_language === "lang-default") {
-        alert ("language-default-error")
+for (i = 0; i < value_submit.length; i++) {
+    if (value_submit.charAt(i) === ' ') {
+        alert("whitespace error");
         return "error";
     }
-
-    // neither new, nor default, so return the selected language as the one to submit
-    return selected_language;
+}
 }
 
-// ensure that the function type is not default nor a blank new function type field when trying to submit
-function get_function_type_submit(selected_language) {
-    if (selected_language === "new-language") {
-        if (!document.querySelector("#new-function-type-field").value) {
-            alert("blank_function_type_error");
+// Ensure that the language is not default nor a blank new language field when trying to submit
+function getLanguageSubmit(selected_language) {
+
+if (selected_language === "lang-default") {
+    alert ("language-default-error")
+    return "error";
+
+// If a new language is being submitted, make sure that the language field isn't blank & no whitespaces
+} else if (selected_language === "new-language") {
+
+    if (!document.querySelector("#new-language-field").value) {
+        alert("blank_language_field_error");
+        return "error";
+        
+    } else {
+        language_submit = document.querySelector("#new-language-field").value;
+
+        space_check = whitespace_check(language_submit);
+        if (space_check === "error") {
             return "error";
         } else {
-            new_function_type = document.querySelector("#new-function-type-field").value;
-
-            space_check = whitespace_check(new_function_type);
-            if (space_check === "error") {
-                return "error";
-            } else {
-                return new_function_type;
-            }
+            return language_submit;
         }
+    }
+// Neither default nor new, so return the selected language as the one to submit
+} else {
+
+return selected_language;
+
+}
+}
+
+// Ensure that the function type is not default nor a blank new function type field when trying to submit
+function getFunctionTypeSubmit(selected_language) {
+
+if (selected_language === "new-language") {
+
+    if (!document.querySelector("#new-function-type-field").value) {
+        alert("blank_function_type_error");
+        return "error";
 
     } else {
-        // not a new language, so the function type dropdown box will be specific to the language chosen
-        //selected_function_type = document.querySelector(`#${selected_language}-function-type-menu`).value
-        selected_function_type = document.querySelector("#current-function-type-tag").value;
-        console.log(selected_function_type);
-    }
+        new_function_type = document.querySelector("#new-function-type-field").value;
 
-    if (selected_function_type === "new-function-type") {
-        if (!document.querySelector("#new-function-type-field").value) {
-            alert("blank_function_type_error");
+        space_check = whitespace_check(new_function_type);
+        if (space_check === "error") {
             return "error";
         } else {
-            new_function_type = document.querySelector("#new-function-type-field").value;
-
-            space_check = whitespace_check(new_function_type);
-            if (space_check === "error") {
-                return "error";
-            } else {
-                return new_function_type;
-            }
+            return new_function_type;
         }
     }
 
-    if (selected_function_type === "func-default") {
-        alert("function_type_default_error")
-        return "error";
-    
-    }
-
-    return selected_function_type;
+} else {
+    // Retrieve the function type via the hidden variable
+    selected_function_type = document.querySelector("#current-function-type-tag").value;
 }
 
-// collect the information from the various fields while checking for errors 
-function submitData() {
-    result = confirm("Are you sure?")
-        if(result)
-        {
-    
-    selected_language = document.querySelector("#lang-menu").value;
+// Either going to be a new function type or an existing one. No need to change/verify the existing one.
+if (selected_function_type === "new-function-type") {
 
-    language_submit = get_language_submit(selected_language);
-    if (language_submit === "error") {
-        return;
+    if (!document.querySelector("#new-function-type-field").value) {
+        alert("blank_function_type_error");
+        return "error";
+
+    } else {
+        new_function_type = document.querySelector("#new-function-type-field").value;
+
+        space_check = whitespace_check(new_function_type);
+        if (space_check === "error") {
+            return "error";
+        } else {
+            return new_function_type;
+        }
     }
-    
-    function_type_submit = get_function_type_submit(selected_language)
-    if (function_type_submit === "error") {
-        return;
-    }
+} else {
 
-    data_submit_check = check_not_null()
-    if (data_submit_check === "error") {
-        return;
-    }
+return selected_function_type;
 
-    function_name_submit = document.querySelector("#function-name-data").value;
-    syntax_submit = document.querySelector("#syntax-data").value;
-    parameters_submit = document.querySelector("#parameters-data").value;
-    return_value_submit = document.querySelector("#return_value-data").value;
+}
+}
 
-    console.log(language_submit, function_type_submit, function_name_submit, syntax_submit, parameters_submit, return_value_submit);
+// Collect the information from the various fields while checking for errors 
+function submitNewFunction() {
+result = confirm("Are you sure?")
+if(result) {
+ 
+selected_language = document.querySelector("#lang-menu").value;
 
-    // note: fetch has to use 'body', not some random variable name
-    // note: saving the return of stringify as a variable and sending to a different function resulted in errors
-    
-    fetch('/funkdata/submitnew', {
-        method: "POST",
-        body: JSON.stringify({
-            language: language_submit,
-            function_type: function_type_submit,
-            function_name: function_name_submit,
-            syntax: syntax_submit, 
-            parameters: parameters_submit, 
-            return_value: return_value_submit,
-        })
+language_submit = getLanguageSubmit(selected_language);
+if (language_submit === "error") {
+    return;
+}
+
+function_type_submit = getFunctionTypeSubmit(selected_language)
+if (function_type_submit === "error") {
+    return;
+}
+
+data_submit_check = checkNotNull()
+if (data_submit_check === "error") {
+    return;
+}
+
+function_name_submit = document.querySelector("#function-name-data").value;
+syntax_submit = document.querySelector("#syntax-data").value;
+parameters_submit = document.querySelector("#parameters-data").value;
+return_value_submit = document.querySelector("#return_value-data").value;
+
+console.log(language_submit, function_type_submit, function_name_submit, syntax_submit, parameters_submit, return_value_submit);
+
+// note: fetch has to use 'body', not some random variable name
+// note: saving the return of stringify as a variable and sending to a different function resulted in errors
+
+fetch('/funkdata/submitnew', {
+    method: "POST",
+    body: JSON.stringify({
+        language: language_submit,
+        function_type: function_type_submit,
+        function_name: function_name_submit,
+        syntax: syntax_submit, 
+        parameters: parameters_submit, 
+        return_value: return_value_submit,
     })
-    
-    // the way to access the jsonresponse seems to be result . <keyword> for some reason
-        .then(response => response.json())
-        .then(result => {
-            alert(result.Status);
-            location.reload();
-        })
-    }   
+})
+
+// the way to access the jsonresponse seems to be result . <keyword> for some reason
+    .then(response => response.json())
+    .then(result => {
+        alert(result.Status);
+        location.reload();
+    })
+}   
 }
 
 function resetAll(tag) {
 
-    resetDataBorders();
-    hideDataFields();
+resetDataBorders();
+resetDataFields();
 
-    document.querySelector("#function-name-container").style.display = "none";
+document.querySelector("#function-name-container").style.display = "none";
 
-    // re-disable data fields after allowing to modify
-    document.querySelector("#allow_modify").disabled = true;
-    document.querySelector("#modify_current_function").disabled = true;
-    document.querySelector('#syntax-data').disabled = true;
-    document.querySelector('#parameters-data').disabled = true;
-    document.querySelector('#return_value-data').disabled = true;
+// re-disable data fields after allowing to modify
+document.querySelector("#allow_modify").disabled = true;
+document.querySelector("#modify_current_function").disabled = true;
+document.querySelector('#syntax-data').disabled = true;
+document.querySelector('#parameters-data').disabled = true;
+document.querySelector('#return_value-data').disabled = true;
+document.querySelectorAll(".data-field").forEach(container => {
+    container.style.background = 'lightcyan';
+})
 
-    document.querySelector("#new-language-field").setAttribute("type", "hidden");
+document.querySelector("#new-function-type-button").disabled = false;
 
-    try {document.querySelector("#new-function-type-field").setAttribute('type', "hidden");}
-    catch(err) { }
+document.querySelector("#new-language-field").setAttribute("type", "hidden");
 
-    if (tag === "language-tag") {
-        // hide & reset the function type dropdowns
-        document.querySelectorAll('.language-type-container').forEach(container => {
-        container.style.display = 'none';
-        })
+try {document.querySelector("#new-function-type-field").setAttribute('type', "hidden");}
+catch(err) { }
 
-        document.querySelectorAll('.function-menu').forEach(dropdown => {
-        dropdown.selectedIndex = '0';
-        })
-    }
+if (tag === "language-tag") {
+
+    document.querySelector("#new-data-type-container").style.display = "none";
+
+    // hide & reset the function type dropdowns
+    document.querySelectorAll('.language-type-container').forEach(container => {
+    container.style.display = 'none';
+    })
+
+    document.querySelectorAll('.function-menu').forEach(dropdown => {
+    dropdown.selectedIndex = '0';
+    })
 }
 
+if (tag === "type-tag") {
+    document.querySelectorAll('.function-menu').forEach(dropdown => {
+        dropdown.selectedIndex = '0';
+    })
+
+}
+}
 </script>
-</body>
 </html>
