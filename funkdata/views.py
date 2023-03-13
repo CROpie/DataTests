@@ -1,9 +1,8 @@
-from django.shortcuts import render, HttpResponseRedirect
+from django.shortcuts import render
 from .models import Language, FunctionType, FunctionName, FunctionAll
 import json
 from json import dumps
 import csv
-from django.db import IntegrityError
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 
@@ -112,7 +111,9 @@ def modifyData(request):
                                     function_name = temp_function_name,
                                     syntax = data["syntax"],
                                     parameters = data["parameters"],
-                                    return_value = data["return_value"],)
+                                    return_value = data["return_value"],
+                                    example = data["example"],
+                                    misc = data["misc"],)
     temp_function_all.save()
 
     return JsonResponse({"Status": "Data modified successfully"}, status=201)
@@ -141,7 +142,9 @@ def submitNew(request):
                                                                    function_name = temp_function_name,
                                                                    syntax = data["syntax"],
                                                                    parameters = data["parameters"],
-                                                                   return_value = data["return_value"],)
+                                                                   return_value = data["return_value"],
+                                                                   example = data["example"],
+                                                                   misc = data["misc"],)
 
     return JsonResponse({"Status": "Data sent successfully"}, status=201)
 
@@ -172,7 +175,9 @@ def import_csv(request):
                                                                     function_name = temp_function_name,
                                                                     syntax = row[3],
                                                                     parameters = row[4],
-                                                                    return_value = row[5],)
+                                                                    return_value = row[5],
+                                                                    example = row[6],
+                                                                    misc = row[7],)
         
     file.close()
     return render(request, "funkdata/import.html")

@@ -33,7 +33,9 @@ class FunctionAll(models.Model):
     function_name = models.ForeignKey(FunctionName, on_delete=models.CASCADE, default=None)
     syntax = models.CharField(max_length=64, unique=True)
     parameters = models.CharField(max_length=64)
-    return_value =models.CharField(max_length=64)
+    return_value = models.CharField(max_length=64)
+    example = models.CharField(max_length=64)
+    misc = models.CharField(max_length=64)
 
     def __str__(self):
-        return f"{self.syntax},{self.parameters},{self.return_value}"
+        return f"{self.syntax},{self.parameters},{self.return_value},{self.example},{self.misc}"

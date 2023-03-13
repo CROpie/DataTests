@@ -73,10 +73,22 @@
             <textarea id="parameters-data" class="data-field" disabled onInput="this.parentNode.dataset.replicatedValue = this.value"></textarea>
         </div>
     </div>
-    <div id="bottom-data-container" class="data-container">
+    <div class="data-container">
         <div id="return_value-title" class="data-title">Return Value</div>
         <div class="data-grow-wrap">
             <textarea id="return_value-data" class="data-field" disabled onInput="this.parentNode.dataset.replicatedValue = this.value"></textarea>
+        </div>
+    </div>
+    <div class="data-container">
+        <div id="example-title" class="data-title">Example</div>
+        <div class="data-grow-wrap">
+            <textarea id="example-data" class="data-field" disabled onInput="this.parentNode.dataset.replicatedValue = this.value"></textarea>
+        </div>
+    </div>
+    <div id="bottom-data-container" class="data-container">
+        <div id="misc-title" class="data-title">Misc</div>
+        <div class="data-grow-wrap">
+            <textarea id="misc-data" class="data-field" disabled onInput="this.parentNode.dataset.replicatedValue = this.value"></textarea>
         </div>
     </div>
 </div>
@@ -120,15 +132,8 @@ function setButtons(tag) {
 }
 
 function resetDataFields() {
-    document.querySelector('#syntax-data').value = "";
-    document.querySelector('#parameters-data').value = "";
-    document.querySelector('#return_value-data').value = "";
-}
-
-// reset the borders to none if no longer creating a new entry
-function resetDataBorders() {
-    document.querySelectorAll(".data-field").forEach(container => {
-    container.style.border = 'none';
+    document.querySelectorAll(".data-field").forEach(datafield => {
+    datafield.value = '';
     })
 }
 
@@ -218,6 +223,8 @@ function chooseFunction(functiontype, dropdown_id, current_selected_index) {
         document.querySelector('#syntax-data').value = `${data[0]}`;
         document.querySelector('#parameters-data').value = `${data[1]}`;
         document.querySelector('#return_value-data').value = `${data[2]}`;
+        document.querySelector('#example-data').value = `${data[3]}`;
+        document.querySelector('#misc-data').value = `${data[4]}`;
         
         // Store the function type and name in hidden variables
         document.querySelector('#current-function-type-tag').value = dictkeys[1]
@@ -228,13 +235,13 @@ function chooseFunction(functiontype, dropdown_id, current_selected_index) {
 }
 
 function allowModify() {
-    document.querySelector('#syntax-data').disabled = false;
-    document.querySelector('#parameters-data').disabled = false;
-    document.querySelector('#return_value-data').disabled = false;
-    document.querySelector("#modify_current_function").disabled = false;
-    document.querySelectorAll(".data-field").forEach(container => {
-    container.style.background = 'pink';
+    document.querySelectorAll(".data-field").forEach(datafield => {
+    datafield.disabled = false;
+    datafield.style.background = "#E8DAEF";
     })
+
+    document.querySelector("#modify_current_function").disabled = false;
+
 }
 
 function saveModifications() {
@@ -248,6 +255,8 @@ function saveModifications() {
     modify_syntax = document.querySelector('#syntax-data').value;
     modify_parameters = document.querySelector('#parameters-data').value;
     modify_return_value = document.querySelector('#return_value-data').value;
+    modify_example = document.querySelector('#example-data').value;
+    modify_misc = document.querySelector('#misc-data').value;
     
     fetch('/funkdata/modifydata', {
         method: "POST",
@@ -257,7 +266,9 @@ function saveModifications() {
             function_name: modify_function_name,
             syntax: modify_syntax, 
             parameters: modify_parameters, 
-            return_value: modify_return_value
+            return_value: modify_return_value,
+            example: modify_example,
+            misc: modify_misc,
         })
     })
     // the way to access the jsonresponse seems to be result . <keyword> for some reason
@@ -359,7 +370,9 @@ function showNewFunctionTypeField() {
 function checkNotNull() {
     if ((!document.querySelector("#syntax-data").value) || 
         (!document.querySelector("#parameters-data").value) || 
-        (!document.querySelector("#return_value-data").value)) {
+        (!document.querySelector("#return_value-data").value) ||
+        (!document.querySelector("#example-data").value) ||
+        (!document.querySelector("#misc-data").value)) {
         alert("blank data field error")
         return "error";
     }
@@ -481,8 +494,8 @@ function submitNewFunction() {
     syntax_submit = document.querySelector("#syntax-data").value;
     parameters_submit = document.querySelector("#parameters-data").value;
     return_value_submit = document.querySelector("#return_value-data").value;
-
-    console.log(language_submit, function_type_submit, function_name_submit, syntax_submit, parameters_submit, return_value_submit);
+    example_submit = document.querySelector("#example-data").value;
+    misc_submit = document.querySelector("#misc-data").value;
 
     // note: fetch has to use 'body', not some random variable name
     // note: saving the return of stringify as a variable and sending to a different function resulted in errors
@@ -496,6 +509,8 @@ function submitNewFunction() {
             syntax: syntax_submit, 
             parameters: parameters_submit, 
             return_value: return_value_submit,
+            example: example_submit,
+            misc: misc_submit,
         })
     })
 
@@ -510,7 +525,6 @@ function submitNewFunction() {
 
 function resetAll(tag) {
 
-    resetDataBorders();
     resetDataFields();
 
     document.querySelector("#function-name-container").style.display = "none";
@@ -518,11 +532,10 @@ function resetAll(tag) {
     // re-disable data fields after allowing to modify
     document.querySelector("#allow_modify").disabled = true;
     document.querySelector("#modify_current_function").disabled = true;
-    document.querySelector('#syntax-data').disabled = true;
-    document.querySelector('#parameters-data').disabled = true;
-    document.querySelector('#return_value-data').disabled = true;
-    document.querySelectorAll(".data-field").forEach(container => {
-        container.style.background = 'lightcyan';
+
+    document.querySelectorAll(".data-field").forEach(field => {
+        field.style.background = 'lightcyan';
+        field.disabled = true;
     })
 
     document.querySelector("#new-function-type-button").disabled = false;
