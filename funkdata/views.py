@@ -7,63 +7,6 @@ from django.db import IntegrityError
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 
-def check_in_database(class_name):
-    try:
-        class_name.save()
-    except IntegrityError:
-        print (f"{class_name} duplicate ignored")
-    else:
-        print(f"added {class_name}")
-
-def import_csv(request):
-    file = open("funkdata/NewData.csv")
-    csvreader = csv.reader(file)
-    header = []
-    header = next(csvreader)
-    #print(header)
-    rows = []
-    for row in csvreader:
-        rows.append(row)
-    #print(rows)
-
-    for row in rows:
-        temp_language = Language(unique_language = row[0])
-        check_in_database(temp_language)
-
-        # After saving a new language, need to retrieve the newly created database entry
-        temp_language = Language.objects.get(unique_language = row[0])
-
-        temp_function_type = FunctionType(
-                                           language = temp_language,
-                                           unique_function_type = row[1],
-                                          )
-        check_in_database(temp_function_type)
-        
-        # After saving a new function_type, need to retrieve the newly created database entry
-        # Without specifying the language, there can be >1 FunctionType objects with the same function_type, leading to an error
-        # The syntax language__unique_language= traces back the language foreign key to the Language model.
-        temp_function_type = FunctionType.objects.get(language__unique_language=row[0], unique_function_type = row[1])
-        
-        temp_function_name = FunctionName(language = temp_language,
-                                          function_type = temp_function_type,
-                                          unique_function_name = row[2])
-        check_in_database(temp_function_name)
-
-        # After saving a new function_name, need to retrieve the newly created database entry
-        temp_function_name = FunctionName.objects.get(unique_function_name = row[2])
-
-        temp_function_all = FunctionAll(language = temp_language,
-                                        function_type = temp_function_type,
-                                        function_name = temp_function_name,
-                                        syntax = row[3],
-                                        parameters = row[4],
-                                        return_value = row[5],
-        )
-        check_in_database(temp_function_all)
-        
-    file.close()
-    return render(request, "funkdata/import.html")
-
 # Makes a dictionary consisting of {language: {function_type: {function_name: { function_data[] }}}}, which can be utilized in django loops
 def database_to_dict():
     language_dict = {}
@@ -95,10 +38,8 @@ def database_to_dict():
                 function_name_dict[function_name.unique_function_name] = function_data_list
 
             function_type_dict[function_type.unique_function_type] = function_name_dict
-            #print(function_type_names)
 
         language_dict[language.unique_language] = function_type_dict
-        #print(language_function_types)
     
     return language_dict
 
@@ -113,155 +54,125 @@ def index(request):
     })
 
 @csrf_exempt
-def submit_new(request):
+def deleteData(request):
     if request.method != "POST":
         return JsonResponse({"error": "POST request required."}, status=400)
     
     data = json.loads(request.body)
-
     print(data)
 
-    temp_language = Language(unique_language = data["language"])
-    check_in_database(temp_language)
-
-    # After saving a new language, need to retrieve the newly created database entry
     temp_language = Language.objects.get(unique_language = data["language"])
 
-    temp_function_type = FunctionType(
-                                        language = temp_language,
-                                        unique_function_type = data["function_type"],
-                                        )
-    check_in_database(temp_function_type)
+    if data["item_to_delete"] == "language":
+        temp_language.delete()
+        return JsonResponse({"Status": "Language deleted successfully"}, status=201)
     
-    # After saving a new function_type, need to retrieve the newly created database entry
-    # Without specifying the language, there can be >1 FunctionType objects with the same function_type, leading to an error
-    # The syntax language__unique_language= traces back the language foreign key to the Language model.
-    temp_function_type = FunctionType.objects.get(language__unique_language=data["language"], unique_function_type = data["function_type"])
+    # .get(language__unique_language = data["language"] also works
+    temp_function_type = FunctionType.objects.get(language = temp_language,
+                                                  unique_function_type = data["function_type"])
     
-    temp_function_name = FunctionName(language = temp_language,
-                                        function_type = temp_function_type,
-                                        unique_function_name = data["function_name"])
-    check_in_database(temp_function_name)
+    if data["item_to_delete"] == "function_type":
+        temp_function_type.delete()
+        return JsonResponse({"Status": "Function type deleted successfully"}, status=201)
 
-    # After saving a new function_name, need to retrieve the newly created database entry
-    temp_function_name = FunctionName.objects.get(unique_function_name = data["function_name"])
+    temp_function_name = FunctionName.objects.get(language = temp_language,
+                                                  function_type = temp_function_type,
+                                                  unique_function_name = data["function_name"])
 
-    temp_function_all = FunctionAll(language = temp_language,
-                                    function_type = temp_function_type,
-                                    function_name = temp_function_name,
-                                    syntax = data["syntax"],
-                                    parameters = data["parameters"],
-                                    return_value = data["return_value"],
-    )
-    check_in_database(temp_function_all)
-
-    return JsonResponse({"Status": "Data sent successfully"}, status=201)
-
+    if data["item_to_delete"] == "function_name":
+        temp_function_name.delete()
+        return JsonResponse({"Status": "Function deleted successfully"}, status=201)
 
 @csrf_exempt
-def delete_language(request):
+def modifyData(request):
     if request.method != "POST":
         return JsonResponse({"error": "POST request required."}, status=400)
     
     data = json.loads(request.body)
     print(data)
 
-    temp_language = Language(unique_language = data["language"])
     temp_language = Language.objects.get(unique_language = data["language"])
 
-    temp_language.delete()
+    temp_function_type = FunctionType.objects.get(language = temp_language,
+                                                  unique_function_type = data["function_type"])
 
-    return JsonResponse({"Status": "Language deleted successfully"}, status=201)
-
-@csrf_exempt
-def delete_function_type(request):
-    if request.method != "POST":
-        return JsonResponse({"error": "POST request required."}, status=400)
-    
-    data = json.loads(request.body)
-    print(data)
-
-    temp_language = Language(unique_language = data["language"])
-    temp_language = Language.objects.get(unique_language = data["language"])
-
-    temp_function_type = FunctionType(
-                                    language = temp_language,
-                                    unique_function_type = data["function_type"],
-                                    )
-    
-    temp_function_type = FunctionType.objects.get(language__unique_language=data["language"], unique_function_type = data["function_type"])
-
-    temp_function_type.delete()
-
-    return JsonResponse({"Status": "Function type deleted successfully"}, status=201)
-
-@csrf_exempt
-def delete_function_name(request):
-    if request.method != "POST":
-        return JsonResponse({"error": "POST request required."}, status=400)
-    
-    data = json.loads(request.body)
-    print(data)
-
-    temp_language = Language(unique_language = data["language"])
-    temp_language = Language.objects.get(unique_language = data["language"])
-
-    temp_function_type = FunctionType(
-                                    language = temp_language,
-                                    unique_function_type = data["function_type"],
-                                    )
-    
-    temp_function_type = FunctionType.objects.get(language__unique_language=data["language"], unique_function_type = data["function_type"])
-
-    temp_function_name = FunctionName(language = temp_language,
-                                        function_type = temp_function_type,
-                                        unique_function_name = data["function_name"])
-    
-    temp_function_name = FunctionName.objects.get(unique_function_name = data["function_name"])
-
-    temp_function_name.delete()
-
-    return JsonResponse({"Status": "Function deleted successfully"}, status=201)
-
-@csrf_exempt
-def modify_data(request):
-    if request.method != "POST":
-        return JsonResponse({"error": "POST request required."}, status=400)
-    
-    data = json.loads(request.body)
-    print(data)
-
-    temp_language = Language(unique_language = data["language"])
-    temp_language = Language.objects.get(unique_language = data["language"])
-
-    temp_function_type = FunctionType(
-                                    language = temp_language,
-                                    unique_function_type = data["function_type"],
-                                    )
-    
-    temp_function_type = FunctionType.objects.get(language__unique_language = data["language"], unique_function_type = data["function_type"])
-
-    temp_function_name = FunctionName(language = temp_language,
-                                        function_type = temp_function_type,
-                                        unique_function_name = data["function_name"])
-    
-    temp_function_name = FunctionName.objects.get(unique_function_name = data["function_name"])
-
+    temp_function_name = FunctionName.objects.get(language = temp_language,
+                                                  function_type = temp_function_type,
+                                                  unique_function_name = data["function_name"])
 
     # Retrieve the current FunctionAll object in the database, and remove it
-    old_function_all = FunctionAll.objects.get(language__unique_language=data["language"],
-                                               function_type__unique_function_type = data["function_type"],
-                                               function_name__unique_function_name=data["function_name"])
+    old_function_all = FunctionAll.objects.get(language = temp_language,
+                                               function_type = temp_function_type,
+                                               function_name = temp_function_name)
     old_function_all.delete()
 
-    # Put in the values for the 'modified' FunctionAll objetct, and store it
+    # Put in the values for the 'modified' FunctionAll object, and store it
     temp_function_all = FunctionAll(language = temp_language,
                                     function_type = temp_function_type,
                                     function_name = temp_function_name,
                                     syntax = data["syntax"],
                                     parameters = data["parameters"],
-                                    return_value = data["return_value"],
-                                    )
+                                    return_value = data["return_value"],)
     temp_function_all.save()
 
     return JsonResponse({"Status": "Data modified successfully"}, status=201)
+
+# created is the second return value from .get_or_create, will be an (irrelevant?) bool
+@csrf_exempt
+def submitNew(request):
+    if request.method != "POST":
+        return JsonResponse({"error": "POST request required."}, status=400)
+    
+    data = json.loads(request.body)
+
+    print(data)
+
+    temp_language, created = Language.objects.get_or_create(unique_language = data["language"])
+
+    temp_function_type, created = FunctionType.objects.get_or_create(language = temp_language, 
+                                                                     unique_function_type = data["function_type"])
+
+    temp_function_name, created = FunctionName.objects.get_or_create(language = temp_language, 
+                                                                     function_type = temp_function_type, 
+                                                                     unique_function_name = data["function_name"])
+
+    temp_function_all, created = FunctionAll.objects.get_or_create(language = temp_language,
+                                                                   function_type = temp_function_type,
+                                                                   function_name = temp_function_name,
+                                                                   syntax = data["syntax"],
+                                                                   parameters = data["parameters"],
+                                                                   return_value = data["return_value"],)
+
+    return JsonResponse({"Status": "Data sent successfully"}, status=201)
+
+def import_csv(request):
+    file = open("funkdata/NewData.csv")
+    csvreader = csv.reader(file)
+    header = []
+    header = next(csvreader)
+    
+    rows = []
+    for row in csvreader:
+        rows.append(row)
+
+    # Just like the submitNew function, but using a list instead
+    for row in rows:
+
+        temp_language, created = Language.objects.get_or_create(unique_language = row[0])
+
+        temp_function_type, created = FunctionType.objects.get_or_create(language = temp_language, 
+                                                                        unique_function_type = row[1])
+
+        temp_function_name, created = FunctionName.objects.get_or_create(language = temp_language, 
+                                                                        function_type = temp_function_type, 
+                                                                        unique_function_name = row[2])
+
+        temp_function_all, created = FunctionAll.objects.get_or_create(language = temp_language,
+                                                                    function_type = temp_function_type,
+                                                                    function_name = temp_function_name,
+                                                                    syntax = row[3],
+                                                                    parameters = row[4],
+                                                                    return_value = row[5],)
+        
+    file.close()
+    return render(request, "funkdata/import.html")
